@@ -1,9 +1,8 @@
 package it.unive.dais.legodroid.lib.comm;
 
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
-
-import java.io.IOException;
 
 /**
  * Classes implementing this interface allow connecting to some devices.
