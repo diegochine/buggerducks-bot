@@ -5,84 +5,51 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/connectionBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/connectionBtn" />
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/connectionString"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:layout_margin="10dp"
-        android:text="Premi START per partire"
-        tools:ignore="HardcodedText" />
-
-    <View
-        android:id="@+id/colorView"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="#ff00ff"
-        />
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/connectionString" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/startButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Start"
-            tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/stopButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Stop"
-            tools:ignore="HardcodedText" />
-
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/taskString"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Motor Power:"
-            tools:ignore="HardcodedText" />
+            android:textAlignment="center"
+            android:text="@string/taskString" />
 
-        <EditText
-            android:id="@+id/powerEdit"
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/task1Btn"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberSigned"
-            android:importantForAutofill="no" />
+            android:text="@string/task1Btn" />
 
+        <Button
+            android:id="@+id/task2Btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/task2Btn" />
+
+        <Button
+            android:id="@+id/task3Btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/task3Btn" />
     </LinearLayout>
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Motor Speed:"
-            tools:ignore="HardcodedText" />
-
-        <EditText
-            android:id="@+id/speedEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="numberSigned"
-            android:importantForAutofill="no" />
-
-    </LinearLayout>
 </LinearLayout>

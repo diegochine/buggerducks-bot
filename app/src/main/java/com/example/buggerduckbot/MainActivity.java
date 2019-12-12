@@ -89,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
         textView = findViewById(R.id.textView);
 
         try {
-            // TODO: replace with your own brick name
-            BluetoothConnection.BluetoothChannel conn = new BluetoothConnection("EV3").connect();
+            BluetoothConnection.BluetoothChannel conn = new BluetoothConnection("DUCK").connect();
 
             // connect to EV3 via bluetooth
             GenEV3<MyCustomApi> ev3 = new GenEV3<>(conn);
@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "fatal error: cannot connect to EV3");
             e.printStackTrace();
         }
+
+         */
     }
 
     // main program executed by EV3
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     LightSensor.Color col = colf.get();
                     updateStatus(lightSensor, "color", col);
                     // when you need to deal with the UI, you must do it within a lambda passed to runOnUiThread()
-                    runOnUiThread(() -> findViewById(R.id.colorView).setBackgroundColor(col.toARGB32()));
+                    //runOnUiThread(() -> findViewById(R.id.colorView).setBackgroundColor(col.toARGB32()));
 
                     Future<Boolean> touched = touchSensor.getPressed();
                     updateStatus(touchSensor, "touch", touched.get() ? 1 : 0);
