@@ -2,6 +2,7 @@
     <string name="app_name">BuggerDuck Bot</string>
     <string name="connectionString">DISPOSITIVO NON CONNESSO</string>
     <string name="connectionBtn">CONNETTITI</string>
+    <string name="positionString">Inserisci la posizione Iniziale</string>
     <string name="taskString">Scegli il task</string>
     <string name="task1Btn">TASK 1</string>
     <string name="task2Btn">TASK 2</string>

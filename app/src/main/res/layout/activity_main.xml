@@ -26,6 +26,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <EditText
+            android:id="@+id/positionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:autofillHints="x - y"
+            android:inputType="textPersonName"
+            android:text="@string/positionString" />
+
         <TextView
             android:id="@+id/taskString"
             android:layout_width="match_parent"
