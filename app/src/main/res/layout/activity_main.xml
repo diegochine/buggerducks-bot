@@ -33,14 +33,7 @@
             android:ems="10"
             android:autofillHints="x - y"
             android:inputType="textPersonName"
-
-
-
-            tools:ignore="LabelFor"
-
-
             android:text="@string/positionString" />
-        <!--LA RIGA "tools:ignore="LabelFor" " NON SO SE VADA BENE, L HO COPIATO DA STACKOVERFLOW PERCHE ALTRIMENTI DA WARINING-->
 
         <TextView
             android:id="@+id/taskString"
