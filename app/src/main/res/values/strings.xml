@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BuggerDuck Bot</string>
-    <string name="connectionString">DISPOSITIVO NON CONNESSO</string>
+    <string name="notConnectionString">DISPOSITIVO NON CONNESSO</string>
+    <string name="connectionString">DISPOSITIVO CONNESSO</string>
     <string name="connectionBtn">CONNETTITI</string>
     <string name="positionString">Inserisci la posizione Iniziale</string>
     <string name="taskString">Scegli il task</string>
@@ -9,4 +10,5 @@
     <string name="task3Btn">TASK 3</string>
     <string name="noErrorString">Non ci sono errori</string>
     <string name="genericErrorString">Ah volevi eh? volevi ? guarda che errore, non se lo aspettava</string>
+    <string name="connectionError">Errore di connessione</string>
 </resources>

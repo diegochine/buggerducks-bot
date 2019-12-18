@@ -1,78 +1,110 @@
 package com.example.buggerduckbot;
 
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.lib.EV3;
-import it.unive.dais.legodroid.lib.GenEV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
-import it.unive.dais.legodroid.lib.plugs.GyroSensor;
-import it.unive.dais.legodroid.lib.plugs.LightSensor;
-import it.unive.dais.legodroid.lib.plugs.Plug;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
-import it.unive.dais.legodroid.lib.plugs.TouchSensor;
-import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
-import it.unive.dais.legodroid.lib.util.Consumer;
 import it.unive.dais.legodroid.lib.util.Prelude;
-import it.unive.dais.legodroid.lib.util.ThrowingConsumer;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static class MyCustomApi extends EV3.Api {
-
-        private MyCustomApi(@NonNull GenEV3<? extends EV3.Api> ev3) {
-            super(ev3);
-        }
-
-        public void mySpecialCommand() { /* do something special */ }
-    }
-
+    Button task1Button, task2Button, task3Button;
+    //robe del telefono
+    private SensorManager sensorManager;
+    private Sensor rvSensor;
+    private SensorEventListener rvEventListener;
+    private float angolo;
+    //robe del robot
     private TachoMotor motoreDx, motoreSx;
-    private TextView textOutput;
+    private EV3 ev3;
+    //robe della grafica
+    private TextView textOutput, connectionString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //roba nuova
+        //roba del telefono
+        angolo = 0;
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        rvSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
-        //roba della view
-        Button startButton = findViewById(R.id.task1Btn);
+        rvEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                //roba copiata da stack overflow
+                float[] rotationMatrix = new float[16];
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+
+                // Remap coordinate system
+                float[] remappedRotationMatrix = new float[16];
+                SensorManager.remapCoordinateSystem(rotationMatrix,
+                        SensorManager.AXIS_X,
+                        SensorManager.AXIS_Z,
+                        remappedRotationMatrix);
+
+                // Convert to orientations
+                float[] orientations = new float[3];
+                SensorManager.getOrientation(remappedRotationMatrix, orientations);
+
+                //Convert radiant to degree
+                for (int i = 0; i < 3; i++) {
+                    orientations[i] = (float) (Math.toDegrees(orientations[i]));
+                }
+
+                //roba scritta da noi
+
+                Integer x = Math.round(orientations[0]);
+                Integer y = Math.round(orientations[1]);
+                Integer z = Math.round(orientations[2]);
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                //che cazzo ne so
+            }
+        };
+
+        sensorManager.registerListener(rvEventListener, rvSensor, sensorManager.SENSOR_DELAY_NORMAL);
+
+
+        //roba della grafica
+        task1Button = findViewById(R.id.task1Btn);
+        task2Button = findViewById(R.id.task2Btn);
+        task3Button = findViewById(R.id.task3Btn);
+        Button connectButton = findViewById(R.id.connectionBtn);
         textOutput = findViewById(R.id.errori);
+        connectionString = findViewById(R.id.connectionString);
 
         //roba del robot
-        try {
-            // connect to EV3 via bluetooth
-            BluetoothConnection.BluetoothChannel ch = new BluetoothConnection("DUCK").connect(); // replace with your own brick name
+        connectButton.setOnClickListener((e) -> {
+            try {
+                // connect to EV3 via bluetooth
+                BluetoothConnection.BluetoothChannel ch = new BluetoothConnection("DUCK").connect(); // replace with your own brick name
 
-            EV3 ev3 = new EV3(ch);
-            // use GenEV3 only if you need a custom API
-            //GenEV3<MyCustomApi> ev3 = new GenEV3<>(ch);
+                ev3 = new EV3(ch);
 
-            startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMain)));
-            // alternatively with GenEV3
-//          startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMainCustomApi, MyCustomApi::new)));
+                connectionString.setText(R.string.connectionString);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                Prelude.trap(() -> ev3.run(this::legoMain));
+
+
+            } catch (IOException e2) {
+                textOutput.setText(R.string.connectionError);
+            }
+        });
     }
 
 
@@ -87,35 +119,78 @@ public class MainActivity extends AppCompatActivity {
             motoreDx.setType(TachoMotor.Type.LARGE);
             motoreSx.setType(TachoMotor.Type.LARGE);
 
-            motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
-            motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
+            motoreDx.setPolarity(TachoMotor.Polarity.BACKWARDS);
+            motoreSx.setPolarity(TachoMotor.Polarity.BACKWARDS);
 
-            motoreDx.start();
-            motoreSx.start();
+            //motoreDx.start();
+            //motoreSx.start();
 
-            motoreDx.setTimePower(100, 1000, 2000, 1000, true);
-            motoreSx.setTimePower(-100, 1000, 2000, 1000, true);
+            task1Button.setOnClickListener(e -> vai_avanti());
+            task2Button.setOnClickListener(e -> vai_indietro());
+            task3Button.setOnClickListener(e -> stoppa_tutto());
+
+            motoreDx.waitCompletion();
+            motoreSx.waitCompletion();
 
             motoreDx.brake();
             motoreSx.brake();
         }catch (IOException e){
-            textOutput.setText(R.string.genericErrorString);
-        }/*catch (InterruptedException e){
-            textOutput.setText("InterruptedException");
-        }catch (ExecutionException e){
-            textOutput.setText("ExecutionException");
-        }*/
+            textOutput.setText(R.string.connectionError);
+        }
     }
 
 
-    protected void gira(int gradi){
-
+    protected void gestice_eccezioni(MyRunnable r) {
+        try {
+            r.run();
+        } catch (IOException e) {
+            textOutput.setText(R.string.connectionError);
+        }
     }
 
-    protected void avanza (){ //di una casella
+    protected void vai_avanti() { //di una casella
+        gestice_eccezioni(() -> {
+            motoreDx.waitCompletion();
+            motoreSx.waitCompletion();
 
+            motoreDx.setTimePower(100, 1000, 2000, 1000, true);
+            motoreSx.setTimePower(100, 1000, 2000, 1000, true);
+        });
     }
 
+    protected void vai_indietro() { //di una casella
+        gestice_eccezioni(() -> {
+            motoreDx.waitCompletion();
+            motoreSx.waitCompletion();
+
+            motoreDx.setTimePower(-100, 1000, 2000, 1000, true);
+            motoreSx.setTimePower(-100, 1000, 2000, 1000, true);
+        });
+    }
+
+
+    protected void gira_dx() {
+        gestice_eccezioni(() -> {
+            motoreDx.waitCompletion();
+            motoreSx.waitCompletion();
+
+            motoreDx.setTimePower(-100, 1000, 2000, 1000, true);
+            motoreSx.setTimePower(-100, 1000, 2000, 1000, true);
+        });
+    }
+
+
+    protected void stoppa_tutto() {
+        gestice_eccezioni(() -> {
+            motoreDx.stop();
+            motoreSx.stop();
+        });
+    }
+
+
+    public interface MyRunnable {
+        void run() throws IOException;
+    }
 }
 
 
