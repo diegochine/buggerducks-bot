@@ -33,7 +33,14 @@
             android:ems="10"
             android:autofillHints="x - y"
             android:inputType="textPersonName"
+
+
+
+            tools:ignore="LabelFor"
+
+
             android:text="@string/positionString" />
+        <!--LA RIGA "tools:ignore="LabelFor" " NON SO SE VADA BENE, L HO COPIATO DA STACKOVERFLOW PERCHE ALTRIMENTI DA WARINING-->
 
         <TextView
             android:id="@+id/taskString"
@@ -59,6 +66,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/task3Btn" />
+
+        <TextView
+            android:id="@+id/errori"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/noErrorString" />
     </LinearLayout>
 
 </LinearLayout>

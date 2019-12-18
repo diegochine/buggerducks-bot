@@ -34,169 +34,87 @@ import it.unive.dais.legodroid.lib.util.ThrowingConsumer;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = Prelude.ReTAG("MainActivity");
-
-    private TextView textView;
-    private final Map<String, Object> statusMap = new HashMap<>();
-    @Nullable
-    private TachoMotor motor;   // this is a class field because we need to access it from multiple methods
-
-    private void updateStatus(@NonNull Plug p, String key, Object value) {
-        Log.d(TAG, String.format("%s: %s: %s", p, key, value));
-        statusMap.put(key, value);
-        runOnUiThread(() -> textView.setText(statusMap.toString()));
-    }
-
-    private void setupEditable(@IdRes int id, Consumer<Integer> f) {
-        EditText e = findViewById(id);
-        e.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                int x = 0;
-                try {
-                    x = Integer.parseInt(s.toString());
-                } catch (NumberFormatException ignored) {
-                }
-                f.call(x);
-            }
-        });
-    }
-
     private static class MyCustomApi extends EV3.Api {
 
         private MyCustomApi(@NonNull GenEV3<? extends EV3.Api> ev3) {
             super(ev3);
         }
 
-        public void mySpecialCommand() {}
+        public void mySpecialCommand() { /* do something special */ }
     }
 
-    // quick wrapper for accessing field 'motor' only when not-null; also ignores any exception thrown
-    private void applyMotor(@NonNull ThrowingConsumer<TachoMotor, Throwable> f) {
-        if (motor != null)
-            Prelude.trap(() -> f.call(motor));
-    }
+    private TachoMotor motoreDx, motoreSx;
+    private TextView textOutput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*
-        textView = findViewById(R.id.textView);
 
+        //roba nuova
+
+        //roba della view
+        Button startButton = findViewById(R.id.task1Btn);
+        textOutput = findViewById(R.id.errori);
+
+        //roba del robot
         try {
-            BluetoothConnection.BluetoothChannel conn = new BluetoothConnection("DUCK").connect();
-
             // connect to EV3 via bluetooth
-            GenEV3<MyCustomApi> ev3 = new GenEV3<>(conn);
-//            EV3 ev3 = new EV3(conn);  // alternatively an EV3 subclass
+            BluetoothConnection.BluetoothChannel ch = new BluetoothConnection("DUCK").connect(); // replace with your own brick name
 
-            Button stopButton = findViewById(R.id.stopButton);
-            stopButton.setOnClickListener(v -> {
-                ev3.cancel();   // fire cancellation signal to the EV3 task
-            });
+            EV3 ev3 = new EV3(ch);
+            // use GenEV3 only if you need a custom API
+            //GenEV3<MyCustomApi> ev3 = new GenEV3<>(ch);
 
-            Button startButton = findViewById(R.id.startButton);
-            startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMainCustomApi, MyCustomApi::new)));
-            // alternatively with plain EV3
-//            startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMain)));
+            startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMain)));
+            // alternatively with GenEV3
+//          startButton.setOnClickListener(v -> Prelude.trap(() -> ev3.run(this::legoMainCustomApi, MyCustomApi::new)));
 
-            setupEditable(R.id.powerEdit, (x) -> applyMotor((m) -> {
-                m.setPower(x);
-                m.start();      // setPower() and setSpeed() require call to start() afterwards
-            }));
-            setupEditable(R.id.speedEdit, (x) -> applyMotor((m) -> {
-                m.setSpeed(x);
-                m.start();
-            }));
         } catch (IOException e) {
-            Log.e(TAG, "fatal error: cannot connect to EV3");
             e.printStackTrace();
         }
-
-         */
     }
 
-    // main program executed by EV3
 
-    private void legoMain(EV3.Api api) {
-        final String TAG = Prelude.ReTAG("legoMain");
-
-        // get sensors
-        final LightSensor lightSensor = api.getLightSensor(EV3.InputPort._3);
-        final UltrasonicSensor ultraSensor = api.getUltrasonicSensor(EV3.InputPort._2);
-        final TouchSensor touchSensor = api.getTouchSensor(EV3.InputPort._1);
-        final GyroSensor gyroSensor = api.getGyroSensor(EV3.InputPort._4);
-
-        // get motors
-        motor = api.getTachoMotor(EV3.OutputPort.A);
+    protected void legoMain(EV3.Api api){
+        motoreDx = api.getTachoMotor(EV3.OutputPort.D);
+        motoreSx = api.getTachoMotor(EV3.OutputPort.A);
 
         try {
-            applyMotor(TachoMotor::resetPosition);
+            motoreDx.resetPosition();
+            motoreSx.resetPosition();
 
-            while (!api.ev3.isCancelled()) {    // loop until cancellation signal is fired
-                try {
-                    // values returned by getters are boxed within a special Future object
-                    Future<Float> gyro = gyroSensor.getAngle();
-                    updateStatus(gyroSensor, "gyro angle", gyro.get()); // call get() for actually reading the value - this may block!
+            motoreDx.setType(TachoMotor.Type.LARGE);
+            motoreSx.setType(TachoMotor.Type.LARGE);
 
-                    Future<Short> ambient = lightSensor.getAmbient();
-                    updateStatus(lightSensor, "ambient", ambient.get());
+            motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
+            motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
 
-                    Future<Short> reflected = lightSensor.getReflected();
-                    updateStatus(lightSensor, "reflected", reflected.get());
+            motoreDx.start();
+            motoreSx.start();
 
-                    Future<Float> distance = ultraSensor.getDistance();
-                    updateStatus(ultraSensor, "distance", distance.get());
+            motoreDx.setTimePower(100, 1000, 2000, 1000, true);
+            motoreSx.setTimePower(-100, 1000, 2000, 1000, true);
 
-                    Future<LightSensor.Color> colf = lightSensor.getColor();
-                    LightSensor.Color col = colf.get();
-                    updateStatus(lightSensor, "color", col);
-                    // when you need to deal with the UI, you must do it within a lambda passed to runOnUiThread()
-                    //runOnUiThread(() -> findViewById(R.id.colorView).setBackgroundColor(col.toARGB32()));
-
-                    Future<Boolean> touched = touchSensor.getPressed();
-                    updateStatus(touchSensor, "touch", touched.get() ? 1 : 0);
-
-                    Future<Float> pos = motor.getPosition();
-                    updateStatus(motor, "motor position", pos.get());
-
-                    Future<Float> speed = motor.getSpeed();
-                    updateStatus(motor, "motor speed", speed.get());
-
-                    motor.setStepSpeed(20, 0, 5000, 0, true);
-                    motor.waitCompletion();
-                    motor.setStepSpeed(-20, 0, 5000, 0, true);
-                    Log.d(TAG, "waiting for long motor operation completed...");
-                    motor.waitUntilReady();
-                    Log.d(TAG, "long motor operation completed");
-
-                } catch (IOException | InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        } finally {
-            applyMotor(TachoMotor::stop);
-        }
+            motoreDx.brake();
+            motoreSx.brake();
+        }catch (IOException e){
+            textOutput.setText(R.string.genericErrorString);
+        }/*catch (InterruptedException e){
+            textOutput.setText("InterruptedException");
+        }catch (ExecutionException e){
+            textOutput.setText("ExecutionException");
+        }*/
     }
 
-    private void legoMainCustomApi(MyCustomApi api) {
-        final String TAG = Prelude.ReTAG("legoMainCustomApi");
-        // specialized methods can be safely called
-        api.mySpecialCommand();
-        // stub the other main
-        legoMain(api);
+
+    protected void gira(int gradi){
+
     }
 
+    protected void avanza (){ //di una casella
+
+    }
 
 }
 

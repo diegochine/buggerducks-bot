@@ -7,4 +7,6 @@
     <string name="task1Btn">TASK 1</string>
     <string name="task2Btn">TASK 2</string>
     <string name="task3Btn">TASK 3</string>
+    <string name="noErrorString">Non ci sono errori</string>
+    <string name="genericErrorString">Ah volevi eh? volevi ? guarda che errore, non se lo aspettava</string>
 </resources>
