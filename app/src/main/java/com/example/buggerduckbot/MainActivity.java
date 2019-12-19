@@ -35,6 +35,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //roba della grafica
+        task1Button = findViewById(R.id.task1Btn);
+        task2Button = findViewById(R.id.task2Btn);
+        task3Button = findViewById(R.id.task3Btn);
+        Button connectButton = findViewById(R.id.connectionBtn);
+        textOutput = findViewById(R.id.errori);
+        connectionString = findViewById(R.id.connectionString);
+
         //roba del telefono
         angolo = 0;
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -65,10 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //roba scritta da noi
 
-                Integer x = Math.round(orientations[0]);
-                Integer y = Math.round(orientations[1]);
-                Integer z = Math.round(orientations[2]);
-
+                angolo = orientations[0];
             }
 
             @Override
@@ -78,15 +83,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         sensorManager.registerListener(rvEventListener, rvSensor, sensorManager.SENSOR_DELAY_NORMAL);
-
-
-        //roba della grafica
-        task1Button = findViewById(R.id.task1Btn);
-        task2Button = findViewById(R.id.task2Btn);
-        task3Button = findViewById(R.id.task3Btn);
-        Button connectButton = findViewById(R.id.connectionBtn);
-        textOutput = findViewById(R.id.errori);
-        connectionString = findViewById(R.id.connectionString);
 
         //roba del robot
         connectButton.setOnClickListener((e) -> {
@@ -105,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
                 textOutput.setText(R.string.connectionError);
             }
         });
+
+
+        task1Button.setOnClickListener(e -> vai_avanti());
+        task2Button.setOnClickListener(e -> gira_dx());
+        task3Button.setOnClickListener(e -> stoppa_tutto());
     }
 
 
@@ -121,19 +122,6 @@ public class MainActivity extends AppCompatActivity {
 
             motoreDx.setPolarity(TachoMotor.Polarity.BACKWARDS);
             motoreSx.setPolarity(TachoMotor.Polarity.BACKWARDS);
-
-            //motoreDx.start();
-            //motoreSx.start();
-
-            task1Button.setOnClickListener(e -> vai_avanti());
-            task2Button.setOnClickListener(e -> vai_indietro());
-            task3Button.setOnClickListener(e -> stoppa_tutto());
-
-            motoreDx.waitCompletion();
-            motoreSx.waitCompletion();
-
-            motoreDx.brake();
-            motoreSx.brake();
         }catch (IOException e){
             textOutput.setText(R.string.connectionError);
         }
@@ -169,13 +157,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    protected float differenza_angoloDx(float startAngle, float actualAngle) {
+        if (startAngle * actualAngle < 0) {
+            if (startAngle > 0) return (180 - startAngle) + (180 + actualAngle);
+            else return Math.abs(startAngle) + actualAngle;
+        }
+        return Math.abs(startAngle - actualAngle);
+    }
+
+
     protected void gira_dx() {
         gestice_eccezioni(() -> {
-            motoreDx.waitCompletion();
-            motoreSx.waitCompletion();
+            //motoreDx.waitCompletion();
+            //motoreSx.waitCompletion();
 
-            motoreDx.setTimePower(-100, 1000, 2000, 1000, true);
-            motoreSx.setTimePower(-100, 1000, 2000, 1000, true);
+            float angolo0 = angolo;
+            /*
+            motoreDx.setSpeed(25);
+            motoreSx.setSpeed(25);
+            motoreDx.start();
+            motoreSx.start();
+            while(differenza_angoloDx(angolo0, angolo)<10); //idle
+            motoreDx.setSpeed(-50);
+            motoreSx.setSpeed(50);
+            while(differenza_angoloDx(angolo0, angolo)<20); //idle
+            motoreDx.setSpeed(-75);
+            motoreSx.setSpeed(75);
+            while(differenza_angoloDx(angolo0, angolo)<30); //idle
+            motoreDx.setSpeed(-100);
+            motoreSx.setSpeed(100);
+            while(differenza_angoloDx(angolo0, angolo)<55); //idle
+            motoreDx.setSpeed(-75);
+            motoreSx.setSpeed(75);
+            while(differenza_angoloDx(angolo0, angolo)<65); //idle
+            motoreDx.setSpeed(-50);
+            motoreSx.setSpeed(50);
+            while(differenza_angoloDx(angolo0, angolo)<75); //idle
+            motoreDx.setSpeed(-25);
+            motoreSx.setSpeed(25);
+            while(differenza_angoloDx(angolo0, angolo)<85); //idle
+            motoreDx.setSpeed(-5);
+            motoreSx.setSpeed(5);
+            while(differenza_angoloDx(angolo0, angolo)<89.9); //idleù
+            stoppa_tutto();*/
+
+            for (float i = 0; i < 100000; i += 0.1) {
+                connectionString.setText("" + differenza_angoloDx(angolo0, angolo));
+                for (int j = 0; j < 1000; j++) ;
+            }
         });
     }
 
