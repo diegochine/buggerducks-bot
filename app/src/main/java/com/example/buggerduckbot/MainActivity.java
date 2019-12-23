@@ -5,14 +5,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
@@ -30,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView textOutput, connectionString;
     //roba del programma
     private boolean connected;
+    private Float angolo;
+    private HandlerThread thread;
+    private Handler handler;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +52,48 @@ public class MainActivity extends AppCompatActivity {
         //roba del telefono
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);
+        thread.start();
+        handler = new Handler(thread.getLooper());
         connected = false;
+        angolo = new Float(0);
+
+        SensorEventListener listener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                //roba copiata da stack overflow
+                float[] rotationMatrix = new float[16];
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+
+                // Remap coordinate system
+                float[] remappedRotationMatrix = new float[16];
+                SensorManager.remapCoordinateSystem(rotationMatrix,
+                        SensorManager.AXIS_X,
+                        SensorManager.AXIS_Z,
+                        remappedRotationMatrix);
+
+                // Convert to orientations
+                float[] orientations = new float[3];
+                SensorManager.getOrientation(remappedRotationMatrix, orientations);
+
+                //Convert radiant to degree
+                for (int i = 0; i < 3; i++) {
+                    orientations[i] = (float) (Math.toDegrees(orientations[i]));
+                }
+
+                //roba scritta da noi
+
+                angolo = orientations[0];
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                //che cazzo ne so
+            }
+        };
+
+        sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_CONTINUOUS, handler);
 
 
         //roba del robot
@@ -62,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     connected = true;
 
                     connectionString.setText(R.string.connectionString);
+                    textOutput.setText(R.string.noErrorString);
 
                     task1Button.setOnClickListener(ev -> vai_avanti());
                     task2Button.setOnClickListener(ev -> gira_dx());
@@ -82,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void legoMain(EV3.Api api){
-        motoreDx = api.getTachoMotor(EV3.OutputPort.D);
-        motoreSx = api.getTachoMotor(EV3.OutputPort.A);
+        motoreDx = api.getTachoMotor(EV3.OutputPort.A);
+        motoreSx = api.getTachoMotor(EV3.OutputPort.D);
 
         gestisci_eccezioni(() -> {
             motoreDx.resetPosition();
@@ -114,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
 
-            motoreDx.setTimePower(51, 780, 890, 1000, true);
-            motoreSx.setTimePower(50, 780, 890, 1000, true);
+            motoreDx.setTimePower(50, 780, 890, 1000, true);
+            motoreSx.setTimePower(52, 780, 890, 1000, true);
 
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
@@ -133,15 +179,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void gira_dx() {
-        Future<Float> a;
         gestisci_eccezioni(() -> {
-            SensorEventListener listener = creaListener((angolo -> {
+            motoreDx.waitCompletion();
+            motoreSx.waitCompletion();
 
-            }));
+            motoreDx.setPower(0);
+            motoreSx.setPower(0);
 
-            sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_ONE_SHOT);
+            float angoloInizale = angolo;
+            int power = 0;
 
+            motoreDx.start();
+            motoreSx.start();
 
+            while (differenza_angoloDx(angoloInizale, angolo) < 45) {
+                if (power < 50) {
+                    power += 2;
+                }
+                motoreDx.setPower(-power);
+                motoreSx.setPower(power);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    textOutput.setText(R.string.sleepError);
+                }
+            }
+
+            while (differenza_angoloDx(angoloInizale, angolo) < 90) {
+                if (power > 10) {
+                    power -= 2;
+                }
+                motoreDx.setPower(-power);
+                motoreSx.setPower(power);
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    textOutput.setText(R.string.sleepError);
+                }
+            }
+
+            textOutput.setText("so riva more");
+            stoppa_tutto();
         });
     }
 
@@ -152,44 +230,6 @@ public class MainActivity extends AppCompatActivity {
             motoreDx.stop();
             motoreSx.stop();
         });
-    }
-
-    public SensorEventListener creaListener(Consumer<Float> c) {
-        SensorEventListener listener = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                //roba copiata da stack overflow
-                float[] rotationMatrix = new float[16];
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
-
-                // Remap coordinate system
-                float[] remappedRotationMatrix = new float[16];
-                SensorManager.remapCoordinateSystem(rotationMatrix,
-                        SensorManager.AXIS_X,
-                        SensorManager.AXIS_Z,
-                        remappedRotationMatrix);
-
-                // Convert to orientations
-                float[] orientations = new float[3];
-                SensorManager.getOrientation(remappedRotationMatrix, orientations);
-
-                //Convert radiant to degree
-                for (int i = 0; i < 3; i++) {
-                    orientations[i] = (float) (Math.toDegrees(orientations[i]));
-                }
-
-                //roba scritta da noi
-
-                c.accept(orientations[1]);
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                //che cazzo ne so
-            }
-        };
-
-        return listener;
     }
 
     public interface MyRunnable {
