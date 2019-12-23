@@ -11,4 +11,6 @@
     <string name="noErrorString">Non ci sono errori</string>
     <string name="genericErrorString">Ah volevi eh? volevi ? guarda che errore, non se lo aspettava</string>
     <string name="connectionError">Errore di connessione</string>
+    <string name="alredyConnected">Sei già connesso</string>
+    <string name="needConnection">Devi prima connetterti al robot</string>
 </resources>
