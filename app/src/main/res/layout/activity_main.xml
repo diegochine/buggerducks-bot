@@ -4,35 +4,89 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/connectionBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/connectionBtn" />
-
-    <TextView
-        android:id="@+id/connectionString"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:text="@string/notConnectionString"
-        android:textAlignment="center" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/positionText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:autofillHints="x - y"
-            android:inputType="textPersonName"
-            android:text="@string/positionString" />
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/mapText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:autoSizeTextType="uniform"
+                android:paddingRight="20dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="10dp"
+                android:text="@string/mapString"
+                android:textAlignment="center" />
+
+            <EditText
+                android:id="@+id/mapX"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autofillHints="X"
+                android:ems="10"
+                android:hint="X"
+                android:inputType="numberSigned" />
+
+            <EditText
+                android:id="@+id/mapY"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autofillHints="Y"
+                android:ems="10"
+                android:hint="Y"
+                android:inputType="numberSigned" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/positionText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:autoSizeTextType="uniform"
+                android:paddingRight="20dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="10dp"
+                android:text="@string/positionString"
+                android:textAlignment="center" />
+
+            <EditText
+                android:id="@+id/posX"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autofillHints="X"
+                android:ems="10"
+                android:hint="X"
+                android:inputType="numberSigned" />
+
+            <EditText
+                android:id="@+id/posY"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autofillHints="Y"
+                android:ems="10"
+                android:hint="Y"
+                android:inputType="numberSigned" />
+
+        </LinearLayout>
+
+
+
 
         <TextView
             android:id="@+id/taskString"
@@ -58,12 +112,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/task3Btn" />
-
-        <TextView
-            android:id="@+id/errori"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/noErrorString" />
-    </LinearLayout>
 
 </LinearLayout>
