@@ -22,7 +22,6 @@ import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
 public class MapActivity extends AppCompatActivity {
-    int task;
 
     private TextView textOutput;
 
@@ -47,12 +46,13 @@ public class MapActivity extends AppCompatActivity {
 
         Intent myIntent = getIntent();
         Map map = myIntent.getParcelableExtra("map");
-        task = myIntent.getIntExtra("taskId", 0);
+        int task = myIntent.getIntExtra("taskId", 0);
 
         final GridView mapLayout =  findViewById(R.id.map);
         mapLayout.setNumColumns(map.getDimension().second);
         mapLayout.setAdapter(new CellAdapter(this, R.drawable.empty_square, map.getDimension().first*map.getDimension().second));
 
+        // Inizializzazione Giroscopio
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         HandlerThread thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);
@@ -94,6 +94,7 @@ public class MapActivity extends AppCompatActivity {
 
         sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_CONTINUOUS, handler);
 
+        // Connessione con il robot
         connectButton.setOnClickListener((e) -> {
             try {
                 // connect to EV3 via bluetooth
@@ -105,8 +106,14 @@ public class MapActivity extends AppCompatActivity {
                     connectionString.setText(R.string.connectionString);
                     textOutput.setText(R.string.noErrorString);
 
+                    if(task == 1){
+                        Prelude.trap(() -> ev3.run(this::taskOne));
+                    }else if(task == 2){
+                        Prelude.trap(() -> ev3.run(this::taskTwo));
+                    }else if (task == 3){
+                        Prelude.trap(() -> ev3.run(this::taskThree));
+                    }
 
-                    Prelude.trap(() -> ev3.run(this::legoMain));
                 }
             } catch (IOException ex) {
                 textOutput.setText(R.string.connectionError);
@@ -114,7 +121,15 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
-    protected void legoMain(EV3.Api api){
+    /**
+     * Le nostre funzioni
+     * */
+
+    /**
+     * Inizializza motori e sensori del robot ad inizio task
+     * (al momento solo i motori --> TODO inizializzare i sensori e testare!)
+     * */
+    private void inizialization(EV3.Api api){
         motoreDx = api.getTachoMotor(EV3.OutputPort.A);
         motoreSx = api.getTachoMotor(EV3.OutputPort.D);
 
@@ -131,16 +146,9 @@ public class MapActivity extends AppCompatActivity {
             stoppa_tutto();
         });
 
-        if(this.task == 1){
-            this.taskOne();
-        }else if(this.task == 2){
-            this.taskTwo();
-        }else if (this.task == 3){
-            this.taskThree();
-        }
     }
 
-    protected void gestisci_eccezioni(MyRunnable r) {
+    private void gestisci_eccezioni(MyRunnable r) {
         try {
             r.run();
         } catch (IOException e) {
@@ -149,7 +157,7 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    protected void vai_avanti() { //di una casella
+    private void vai_avanti() { //di una casella
         gestisci_eccezioni(() -> {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
@@ -164,7 +172,7 @@ public class MapActivity extends AppCompatActivity {
         });
     }
 
-    protected float differenza_angoloDx(float startAngle, float actualAngle) {
+    private float differenza_angoloDx(float startAngle, float actualAngle) {
         if (startAngle * actualAngle < 0) {//discordi
             if (startAngle > 0) return (180 - startAngle) + (180 + actualAngle);
             else return Math.abs(startAngle) + actualAngle;
@@ -172,7 +180,7 @@ public class MapActivity extends AppCompatActivity {
         return Math.abs(startAngle - actualAngle);
     }
 
-    protected void gira_dx() {
+    private void gira_dx() {
         gestisci_eccezioni(() -> {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
@@ -219,22 +227,26 @@ public class MapActivity extends AppCompatActivity {
 
 
 
-    protected void stoppa_tutto() {
+    private void stoppa_tutto() {
         gestisci_eccezioni(() -> {
             motoreDx.stop();
             motoreSx.stop();
         });
     }
 
-    private void taskOne(){
+    /**
+     * Esecuzione dei Task
+     * */
 
+    private void taskOne(EV3.Api api){
+        this.inizialization(api);
     }
 
-    private void taskTwo(){
-
+    private void taskTwo(EV3.Api api){
+        this.inizialization(api);
     }
 
-    private void taskThree(){
-
+    private void taskThree(EV3.Api api){
+        this.inizialization(api);
     }
 }

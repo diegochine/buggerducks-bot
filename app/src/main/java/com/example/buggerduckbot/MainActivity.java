@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * apre la MapActivity con i paramentri giusti
+     * Apre la MapActivity con i paramentri giusti
      */
     private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy){
         if(this.validateMapFields(x, y, posx, posy)) {
