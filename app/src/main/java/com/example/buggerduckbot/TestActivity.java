@@ -30,7 +30,6 @@ public class TestActivity extends AppCompatActivity {
     private TachoMotor motoreDx, motoreSx;
 
     private Float angolo;
-
     public interface MyRunnable {
         void run() throws IOException;
     }
@@ -56,7 +55,7 @@ public class TestActivity extends AppCompatActivity {
 
         // Inizializzazione Giroscopio
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
         HandlerThread thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);
         thread.start();
         Handler handler = new Handler(thread.getLooper());
@@ -94,7 +93,7 @@ public class TestActivity extends AppCompatActivity {
             }
         };
 
-        sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_CONTINUOUS, handler);
+        sensorManager.registerListener(listener, giroscopio, 10000, handler);
 
         // Connessione con il robot
         connect.setOnClickListener((e) -> {
@@ -141,14 +140,18 @@ public class TestActivity extends AppCompatActivity {
 
         special.setOnClickListener((e)->{
             if(connected){
-                for(int i=0; i<12; i++){
-                    vai_avanti();
-                }
+
+                vai_avanti();
                 gira_dx();
-                gira_dx();
-                for(int i=0; i<12; i++){
-                    vai_avanti();
+                try {
+                    Thread.sleep(1000);
+                }catch (InterruptedException ex){
+
                 }
+
+                gira_dx();
+                vai_avanti();
+
             }
         });
     }
@@ -195,7 +198,7 @@ public class TestActivity extends AppCompatActivity {
             motoreSx.waitCompletion();
 
             motoreDx.setTimePower(50, 780, 890, 1000, true);
-            motoreSx.setTimePower(52, 780, 890, 1000, true);
+            motoreSx.setTimePower(50, 780, 890, 1000, true);
 
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
@@ -217,43 +220,25 @@ public class TestActivity extends AppCompatActivity {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
 
-            motoreDx.setPower(0);
-            motoreSx.setPower(0);
+            try {
+                Thread.sleep(500);
+            }catch (InterruptedException ex){}
 
             float angoloInizale = angolo;
-            int power = 0;
+
+            motoreDx.setPower(-10);
+            motoreSx.setPower(10);
 
             motoreDx.start();
             motoreSx.start();
 
-            while (differenza_angoloDx(angoloInizale, angolo) < 45) {
-                if (power < 50) {
-                    power += 2;
-                }
-                motoreDx.setPower(-power);
-                motoreSx.setPower(power);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    stato.setText(R.string.sleepError);
-                }
-            }
+            while (differenza_angoloDx(angoloInizale, angolo) < 89);
 
-            while (differenza_angoloDx(angoloInizale, angolo) < 90) {
-                if (power > 10) {
-                    power -= 2;
-                }
-                motoreDx.setPower(-power);
-                motoreSx.setPower(power);
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    stato.setText(R.string.sleepError);
-                }
-            }
+            motoreDx.stop();
+            motoreSx.stop();
+
 
             stato.setText("so riva more");
-            stoppa_tutto();
         });
     }
 
