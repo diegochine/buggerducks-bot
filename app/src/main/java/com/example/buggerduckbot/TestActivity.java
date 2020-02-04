@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -21,9 +20,10 @@ import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
-public class MapActivity extends AppCompatActivity {
+public class TestActivity extends AppCompatActivity {
 
-    private TextView textOutput;
+
+    private TextView stato;
 
     private boolean connected;
     private EV3 ev3;
@@ -35,26 +35,24 @@ public class MapActivity extends AppCompatActivity {
         void run() throws IOException;
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //inizializzazione activity
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_test);
 
-        //grafica
-        Button connectButton = findViewById(R.id.connectionBtn);
-        textOutput = findViewById(R.id.errori);
-        TextView connectionString = findViewById(R.id.connectionString);
+
+        Button connect = findViewById(R.id.connect);
+        Button avanti = findViewById(R.id.avanti);
+        Button sx = findViewById(R.id.sx);
+        Button dx = findViewById(R.id.dx);
+        Button stop = findViewById(R.id.stop);
+        Button special = findViewById(R.id.special);
+        stato = findViewById(R.id.stato);
+        stato.setText("Non sei connesso");
 
         //intent
         Intent myIntent = getIntent();
-        Map map = myIntent.getParcelableExtra("map");
-        int task = myIntent.getIntExtra("taskId", 0);
-
-        //mappa
-        final GridView mapLayout =  findViewById(R.id.map);
-        mapLayout.setNumColumns(map.getDimension().second);
-        mapLayout.setAdapter(new CellAdapter(this, R.drawable.empty_square, map.getDimension().first*map.getDimension().second));
 
         // Inizializzazione Giroscopio
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -99,7 +97,7 @@ public class MapActivity extends AppCompatActivity {
         sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_CONTINUOUS, handler);
 
         // Connessione con il robot
-        connectButton.setOnClickListener((e) -> {
+        connect.setOnClickListener((e) -> {
             try {
                 // connect to EV3 via bluetooth
                 if (!connected) {
@@ -107,20 +105,50 @@ public class MapActivity extends AppCompatActivity {
 
                     ev3 = new EV3(ch);
                     connected = true;
-                    connectionString.setText(R.string.connectionString);
-                    textOutput.setText(R.string.noErrorString);
+                    stato.setText(R.string.connectionString);
 
-                    if(task == 1){
-                        Prelude.trap(() -> ev3.run(this::taskOne));
-                    }else if(task == 2){
-                        Prelude.trap(() -> ev3.run(this::taskTwo));
-                    }else if (task == 3){
-                        Prelude.trap(() -> ev3.run(this::taskThree));
-                    }
 
+                    Prelude.trap(() -> ev3.run(this::inizialization));
                 }
             } catch (IOException ex) {
-                textOutput.setText(R.string.connectionError);
+                stato.setText(R.string.connectionError);
+            }
+        });
+
+        avanti.setOnClickListener((e)->{
+            if(connected){
+                vai_avanti();
+            }
+        });
+
+        dx.setOnClickListener((e)->{
+            if(connected){
+                gira_dx();
+            }
+        });
+
+        sx.setOnClickListener((e)->{
+            if(connected){
+               stato.setText("non posso ancora andare a sinistra");
+            }
+        });
+
+        stop.setOnClickListener((e)->{
+            if(connected){
+                stoppa_tutto();
+            }
+        });
+
+        special.setOnClickListener((e)->{
+            if(connected){
+                for(int i=0; i<12; i++){
+                    vai_avanti();
+                }
+                gira_dx();
+                gira_dx();
+                for(int i=0; i<12; i++){
+                    vai_avanti();
+                }
             }
         });
     }
@@ -132,8 +160,8 @@ public class MapActivity extends AppCompatActivity {
     /**
      * Inizializza motori e sensori del robot ad inizio task
      * (al momento solo i motori --> TODO inizializzare i sensori e testare!)
-     * */
-    private void inizialization(EV3.Api api){
+     */
+    private void inizialization(EV3.Api api) {
         motoreDx = api.getTachoMotor(EV3.OutputPort.A);
         motoreSx = api.getTachoMotor(EV3.OutputPort.D);
 
@@ -152,11 +180,11 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private void gestisci_eccezioni(MyRunnable r) {
+    private void gestisci_eccezioni(MapActivity.MyRunnable r) {
         try {
             r.run();
         } catch (IOException e) {
-            textOutput.setText(R.string.connectionError);
+            stato.setText(R.string.connectionError);
             connected = false;
         }
     }
@@ -207,7 +235,7 @@ public class MapActivity extends AppCompatActivity {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    textOutput.setText(R.string.sleepError);
+                    stato.setText(R.string.sleepError);
                 }
             }
 
@@ -220,15 +248,14 @@ public class MapActivity extends AppCompatActivity {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    textOutput.setText(R.string.sleepError);
+                    stato.setText(R.string.sleepError);
                 }
             }
 
-            textOutput.setText("so riva more");
+            stato.setText("so riva more");
             stoppa_tutto();
         });
     }
-
 
 
     private void stoppa_tutto() {
@@ -236,21 +263,5 @@ public class MapActivity extends AppCompatActivity {
             motoreDx.stop();
             motoreSx.stop();
         });
-    }
-
-    /**
-     * Esecuzione dei Task
-     * */
-
-    private void taskOne(EV3.Api api){
-        this.inizialization(api);
-    }
-
-    private void taskTwo(EV3.Api api){
-        this.inizialization(api);
-    }
-
-    private void taskThree(EV3.Api api){
-        this.inizialization(api);
     }
 }

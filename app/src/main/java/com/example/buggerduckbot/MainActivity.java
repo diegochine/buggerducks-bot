@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         task1Button.setOnClickListener(e -> this.openMap(myIntent, 1, mapX, mapY, posX, posY));
         task2Button.setOnClickListener(e -> this.openMap(myIntent, 2, mapX, mapY, posX, posY));
         task3Button.setOnClickListener(e -> this.openMap(myIntent, 3, mapX, mapY, posX, posY));
+
+        Intent testIntent = new Intent (MainActivity.this, TestActivity.class);
+        startActivity(testIntent);
     }
 
     /**
