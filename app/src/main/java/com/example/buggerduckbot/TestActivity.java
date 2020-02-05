@@ -14,10 +14,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
+import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
 public class TestActivity extends AppCompatActivity {
@@ -27,9 +30,10 @@ public class TestActivity extends AppCompatActivity {
 
     private boolean connected;
     private EV3 ev3;
-    private TachoMotor motoreDx, motoreSx;
+    private TachoMotor motoreDx, motoreSx, pinza;
+    private UltrasonicSensor sensore;
 
-    private Float angolo;
+    private Float angolo, dist;
     public interface MyRunnable {
         void run() throws IOException;
     }
@@ -37,10 +41,12 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //roba activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
 
+        //grafica
         Button connect = findViewById(R.id.connect);
         Button avanti = findViewById(R.id.avanti);
         Button sx = findViewById(R.id.sx);
@@ -140,7 +146,7 @@ public class TestActivity extends AppCompatActivity {
 
         special.setOnClickListener((e)->{
             if(connected){
-
+    /*
                 vai_avanti();
                 gira_dx();
                 try {
@@ -151,7 +157,8 @@ public class TestActivity extends AppCompatActivity {
 
                 gira_dx();
                 vai_avanti();
-
+*/
+            prendiMina();
             }
         });
     }
@@ -167,29 +174,70 @@ public class TestActivity extends AppCompatActivity {
     private void inizialization(EV3.Api api) {
         motoreDx = api.getTachoMotor(EV3.OutputPort.A);
         motoreSx = api.getTachoMotor(EV3.OutputPort.D);
+        pinza = api.getTachoMotor(EV3.OutputPort.C);
+        sensore = api.getUltrasonicSensor(EV3.InputPort._1);
 
         gestisci_eccezioni(() -> {
-            motoreDx.resetPosition();
-            motoreSx.resetPosition();
-
             motoreDx.setType(TachoMotor.Type.LARGE);
             motoreSx.setType(TachoMotor.Type.LARGE);
+            pinza.setType(TachoMotor.Type.MEDIUM);
 
             motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
             motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
+            pinza.setPolarity(TachoMotor.Polarity.FORWARD);
+
+            motoreDx.resetPosition();
+            motoreSx.resetPosition();
+            pinza.resetPosition();
 
             stoppa_tutto();
         });
 
     }
 
-    private void gestisci_eccezioni(MapActivity.MyRunnable r) {
+    private float leggiSensore(){
+        Future<Float> ff = null;
+        Float f = null;
+        try{
+            while(f == null){
+                if(ff == null || ff.isCancelled()){
+                    ff = sensore.getDistance();
+                }else{
+                    if( ff.isDone()){
+                        f = ff.get();
+                    }else{
+                        Thread.sleep(50);
+                    }
+                }
+            }
+        }catch (IOException e1){
+            stato.setText(R.string.connectionError);
+            connected = false;
+        }catch (ExecutionException | InterruptedException e2){
+            stato.setText("Il future xe nda in merda");
+        }
+        return f;
+    }
+
+    private void gestisci_eccezioni(MyRunnable r) {
         try {
             r.run();
         } catch (IOException e) {
             stato.setText(R.string.connectionError);
             connected = false;
         }
+    }
+
+    private void prendiMina(){
+        gestisci_eccezioni(()->{
+            pinza.setTimePower(50, 300, 300, 300, true);
+        });
+    }
+
+    private void lasciaMina(){
+        gestisci_eccezioni(()->{
+            pinza.setTimePower(-50, 300, 300, 300, true);
+        });
     }
 
     private void vai_avanti() { //di una casella
@@ -247,6 +295,7 @@ public class TestActivity extends AppCompatActivity {
         gestisci_eccezioni(() -> {
             motoreDx.stop();
             motoreSx.stop();
+            pinza.stop();
         });
     }
 }
