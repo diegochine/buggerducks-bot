@@ -27,6 +27,7 @@ public class TestActivity extends AppCompatActivity {
 
 
     private TextView stato;
+    private TextView val_sens;
 
     private boolean connected;
     private EV3 ev3;
@@ -55,6 +56,8 @@ public class TestActivity extends AppCompatActivity {
         Button special = findViewById(R.id.special);
         stato = findViewById(R.id.stato);
         stato.setText("Non sei connesso");
+        val_sens = findViewById(R.id.val_sens);
+
 
         //intent
         Intent myIntent = getIntent();
@@ -122,7 +125,14 @@ public class TestActivity extends AppCompatActivity {
 
         avanti.setOnClickListener((e)->{
             if(connected){
-                vai_avanti();
+                while (leggiSensore() > 7.0){
+                    vai_avanti();
+                    val_sens.setText(""+ leggiSensore());
+                }
+                stoppa_tutto();
+                prendiMina();
+                val_sens.setText(""+ leggiSensore());
+
             }
         });
 
@@ -134,9 +144,13 @@ public class TestActivity extends AppCompatActivity {
 
         sx.setOnClickListener((e)->{
             if(connected){
-               stato.setText("non posso ancora andare a sinistra");
+               //stato.setText("non posso ancora andare a sinistra");
+                //prendiMina();
+
+                val_sens.setText(""+ leggiSensore());
             }
         });
+
 
         stop.setOnClickListener((e)->{
             if(connected){
@@ -158,7 +172,8 @@ public class TestActivity extends AppCompatActivity {
                 gira_dx();
                 vai_avanti();
 */
-            prendiMina();
+            //prendiMina();
+            lasciaMina();
             }
         });
     }
@@ -230,13 +245,13 @@ public class TestActivity extends AppCompatActivity {
 
     private void prendiMina(){
         gestisci_eccezioni(()->{
-            pinza.setTimePower(50, 300, 300, 300, true);
+            pinza.setTimePower(70, 300, 400, 300, true);
         });
     }
 
     private void lasciaMina(){
         gestisci_eccezioni(()->{
-            pinza.setTimePower(-50, 300, 300, 300, true);
+            pinza.setTimePower(-70, 300, 300, 300, true);
         });
     }
 
@@ -246,7 +261,7 @@ public class TestActivity extends AppCompatActivity {
             motoreSx.waitCompletion();
 
             motoreDx.setTimePower(50, 780, 890, 1000, true);
-            motoreSx.setTimePower(50, 780, 890, 1000, true);
+            motoreSx.setTimePower(51, 780, 890, 1000, true);
 
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();

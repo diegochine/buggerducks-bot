@@ -248,6 +248,7 @@ public class MapActivity extends AppCompatActivity {
 
     private void taskTwo(EV3.Api api){
         this.inizialization(api);
+
     }
 
     private void taskThree(EV3.Api api){
