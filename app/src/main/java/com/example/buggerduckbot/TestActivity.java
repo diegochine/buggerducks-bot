@@ -184,7 +184,6 @@ public class TestActivity extends AppCompatActivity {
 
     /**
      * Inizializza motori e sensori del robot ad inizio task
-     * (al momento solo i motori --> TODO inizializzare i sensori e testare!)
      */
     private void inizialization(EV3.Api api) {
         motoreDx = api.getTachoMotor(EV3.OutputPort.A);

@@ -10,15 +10,19 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import it.unive.dais.legodroid.lib.EV3;
 import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
 import it.unive.dais.legodroid.lib.plugs.TachoMotor;
+import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
 import it.unive.dais.legodroid.lib.util.Prelude;
 
 public class MapActivity extends AppCompatActivity {
@@ -27,9 +31,13 @@ public class MapActivity extends AppCompatActivity {
 
     private boolean connected;
     private EV3 ev3;
-    private TachoMotor motoreDx, motoreSx;
+    private TachoMotor motoreDx, motoreSx, pinza;
+    private UltrasonicSensor sensore;
 
-    private Float angolo;
+    Pair<Integer, Integer> dimMap, posIniziale;
+
+    private Float angolo, no_mina;
+    Direzione d;
 
     public interface MyRunnable {
         void run() throws IOException;
@@ -50,6 +58,8 @@ public class MapActivity extends AppCompatActivity {
         Intent myIntent = getIntent();
         Map map = myIntent.getParcelableExtra("map");
         int task = myIntent.getIntExtra("taskId", 0);
+        dimMap = map.getDimension();
+        posIniziale = map.getInitialPosition();
 
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
@@ -131,28 +141,59 @@ public class MapActivity extends AppCompatActivity {
 
     /**
      * Inizializza motori e sensori del robot ad inizio task
-     * (al momento solo i motori --> TODO inizializzare i sensori e testare!)
-     * */
-    private void inizialization(EV3.Api api){
+     */
+    private void inizialization(EV3.Api api) {
         motoreDx = api.getTachoMotor(EV3.OutputPort.A);
         motoreSx = api.getTachoMotor(EV3.OutputPort.D);
+        pinza = api.getTachoMotor(EV3.OutputPort.C);
+        sensore = api.getUltrasonicSensor(EV3.InputPort._1);
+        d = new Direzione();
 
         gestisci_eccezioni(() -> {
-            motoreDx.resetPosition();
-            motoreSx.resetPosition();
-
             motoreDx.setType(TachoMotor.Type.LARGE);
             motoreSx.setType(TachoMotor.Type.LARGE);
+            pinza.setType(TachoMotor.Type.MEDIUM);
 
             motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
             motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
+            pinza.setPolarity(TachoMotor.Polarity.FORWARD);
+
+            motoreDx.resetPosition();
+            motoreSx.resetPosition();
+            pinza.resetPosition();
+
+            no_mina = leggiSensore();
 
             stoppa_tutto();
         });
 
     }
 
-    private void gestisci_eccezioni(MyRunnable r) {
+    private float leggiSensore(){
+        Future<Float> ff = null;
+        Float f = null;
+        try{
+            while(f == null){
+                if(ff == null || ff.isCancelled()){
+                    ff = sensore.getDistance();
+                }else{
+                    if( ff.isDone()){
+                        f = ff.get();
+                    }else{
+                        Thread.sleep(50);
+                    }
+                }
+            }
+        }catch (IOException e1){
+            textOutput.setText(R.string.connectionError);
+            connected = false;
+        }catch (ExecutionException | InterruptedException e2){
+            textOutput.setText("Il future xe nda in merda");
+        }
+        return f;
+    }
+
+    private void gestisci_eccezioni(TestActivity.MyRunnable r) {
         try {
             r.run();
         } catch (IOException e) {
@@ -161,13 +202,25 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    private void prendiMina(){
+        gestisci_eccezioni(()->{
+            pinza.setTimePower(70, 300, 400, 300, true);
+        });
+    }
+
+    private void lasciaMina(){
+        gestisci_eccezioni(()->{
+            pinza.setTimePower(-70, 300, 300, 300, true);
+        });
+    }
+
     private void vai_avanti() { //di una casella
         gestisci_eccezioni(() -> {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
 
             motoreDx.setTimePower(50, 780, 890, 1000, true);
-            motoreSx.setTimePower(52, 780, 890, 1000, true);
+            motoreSx.setTimePower(51, 780, 890, 1000, true);
 
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
@@ -189,61 +242,191 @@ public class MapActivity extends AppCompatActivity {
             motoreDx.waitCompletion();
             motoreSx.waitCompletion();
 
-            motoreDx.setPower(0);
-            motoreSx.setPower(0);
+            try {
+                Thread.sleep(500);
+            }catch (InterruptedException ex){}
 
             float angoloInizale = angolo;
-            int power = 0;
+
+            motoreDx.setPower(-10);
+            motoreSx.setPower(10);
 
             motoreDx.start();
             motoreSx.start();
 
-            while (differenza_angoloDx(angoloInizale, angolo) < 45) {
-                if (power < 50) {
-                    power += 2;
-                }
-                motoreDx.setPower(-power);
-                motoreSx.setPower(power);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    textOutput.setText(R.string.sleepError);
-                }
-            }
+            while (differenza_angoloDx(angoloInizale, angolo) < 89);
 
-            while (differenza_angoloDx(angoloInizale, angolo) < 90) {
-                if (power > 10) {
-                    power -= 2;
-                }
-                motoreDx.setPower(-power);
-                motoreSx.setPower(power);
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    textOutput.setText(R.string.sleepError);
-                }
-            }
+            motoreDx.stop();
+            motoreSx.stop();
 
-            textOutput.setText("so riva more");
-            stoppa_tutto();
+            d.giraDx();
+            //textOutput.setText("so riva more");
         });
     }
-
 
 
     private void stoppa_tutto() {
         gestisci_eccezioni(() -> {
             motoreDx.stop();
             motoreSx.stop();
+            pinza.stop();
         });
     }
-
     /**
      * Esecuzione dei Task
      * */
 
     private void taskOne(EV3.Api api){
         this.inizialization(api);
+
+        int n_mine=1;//FIXME va preso da input il numero di mine
+
+        boolean colonne [] = new boolean[dimMap.first];
+        for(int i =0; i<dimMap.first; ++i) colonne[i]=false;
+
+        int px = posIniziale.first, py = posIniziale.second;
+
+        while(n_mine > 0){
+            //TODO pulisci prima riga
+            int col = go_to_new_col(px, py, colonne);
+            boolean mina = scan_col();
+            if(mina){
+                prendiMina();
+                --n_mine;
+                dep_mina(px, py);
+            }else{
+                colonne[col]=true;
+            }
+        }
+    }
+
+    void dep_mina (int x, int y){
+        punta_indietro();
+        while(y>0){
+            vai_avanti();
+            --y;
+        }
+        if(x > posIniziale.first){
+            punta_sx();
+            while(x>posIniziale.first){
+                vai_avanti();
+                --x;
+            }
+        }else if (x < posIniziale.first){
+            punta_dx();
+            while(x<posIniziale.first){
+                vai_avanti();
+                ++x;
+            }
+        }
+        punta_indietro();
+        vai_avanti();
+        lasciaMina();
+        try {
+            Thread.sleep(1500);
+        }catch (InterruptedException e){
+                textOutput.setText(R.string.sleepError);
+        }
+        punta_su();
+        vai_avanti();
+    }
+
+    //puo essere chiamata solo se il robot è nella prima riga (aka y=0) FIXME se ci sono mine
+    int go_to_new_col(int x, int y, boolean [] col){
+        int maxX = dimMap.first;
+        int prima_libera;
+        for(prima_libera=0; col[prima_libera]; ++prima_libera);//FIXME do per scontato che non posso finire le colonne se non ho finito le mine
+        if(prima_libera < x){//devo andare a sinistra
+            punta_sx();
+            while(x!=prima_libera){
+                vai_avanti();
+                --x;
+            }
+
+        }else if (prima_libera > x){//è a destra
+            punta_dx();
+            while(x!=prima_libera){
+                vai_avanti();
+                ++x;
+            }
+
+        }
+        //anche se è sopra di me (aka x==primalibera)
+        punta_su();
+        return prima_libera;
+    }
+
+    //ritorna true se ha finito la colonna
+    //false se ha trovato una pallina
+    boolean scan_col(){
+        int maxY = dimMap.second;
+        boolean mina = false;
+        for(int y=0; y<maxY && !mina; ++y){
+            vai_avanti();
+            mina = cerca_mina();
+        }
+        if( mina ){
+            return true;
+        }else{
+            punta_indietro();
+            while(maxY>0){
+                vai_avanti();
+                --maxY;
+            }
+            return false;
+        }
+    }
+
+    boolean cerca_mina(){
+        return leggiSensore() < (no_mina - no_mina*0.15);
+    }
+
+    void punta_su(){
+        if(d.isAvanti())return;
+        if(d.isDx()){
+            //gira_sx(); FIXME
+        }else{
+            gira_dx();
+            if(d.isSx()){
+                gira_dx();
+            }
+        }
+    }
+
+    void punta_sx(){
+        if(d.isSx())return;
+        if(d.isAvanti()){
+            //gira_sx(); FIXME
+        }else{
+            gira_dx();
+            if(d.isIndietro()){
+                gira_dx();
+            }
+        }
+    }
+
+    void punta_dx(){
+        if(d.isDx())return;
+        if(d.isIndietro()){
+            //gira_sx(); FIXME
+        }else{
+            gira_dx();
+            if(d.isAvanti()){
+                gira_dx();
+            }
+        }
+    }
+
+    void punta_indietro(){
+        if(d.isIndietro())return;
+        if(d.isSx()){
+            //gira_sx(); FIXME
+        }else{
+            gira_dx();
+            if(d.isDx()){
+                gira_dx();
+            }
+        }
     }
 
     private void taskTwo(EV3.Api api){
