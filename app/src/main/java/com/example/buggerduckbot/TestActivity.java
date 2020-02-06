@@ -138,7 +138,7 @@ public class TestActivity extends AppCompatActivity {
 
         dx.setOnClickListener((e)->{
             if(connected){
-                gira_dx();
+                for(int i=0; i<4; ++i)gira_dx();
             }
         });
 
@@ -199,10 +199,6 @@ public class TestActivity extends AppCompatActivity {
             motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
             motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
             pinza.setPolarity(TachoMotor.Polarity.FORWARD);
-
-            motoreDx.resetPosition();
-            motoreSx.resetPosition();
-            pinza.resetPosition();
 
             stoppa_tutto();
         });
@@ -269,13 +265,23 @@ public class TestActivity extends AppCompatActivity {
         });
     }
 
-    private float differenza_angoloDx(float startAngle, float actualAngle) {
+    private float differenza_angoloSx(float startAngle, float actualAngle) {
         if (startAngle * actualAngle < 0) {//discordi
             if (startAngle > 0) return (180 - startAngle) + (180 + actualAngle);
             else return Math.abs(startAngle) + actualAngle;
         }
         return Math.abs(startAngle - actualAngle);
     }
+
+    private float differenza_angoloDx(float startAngle, float actualAngle) {
+        if (startAngle * actualAngle < 0) {//discordi
+            if (startAngle < 0) return (180 + startAngle) + (180 - actualAngle);
+            else return Math.abs(actualAngle) + startAngle;
+        }
+        return Math.abs(startAngle - actualAngle);
+    }
+
+
 
     private void gira_dx() {
         gestisci_eccezioni(() -> {
@@ -288,13 +294,13 @@ public class TestActivity extends AppCompatActivity {
 
             float angoloInizale = angolo;
 
-            motoreDx.setPower(-10);
-            motoreSx.setPower(10);
+            motoreDx.setPower(-70);
+            motoreSx.setPower(70);
 
             motoreDx.start();
             motoreSx.start();
 
-            while (differenza_angoloDx(angoloInizale, angolo) < 89);
+            while (differenza_angoloDx(angoloInizale, angolo) < 89.5);
 
             motoreDx.stop();
             motoreSx.stop();
