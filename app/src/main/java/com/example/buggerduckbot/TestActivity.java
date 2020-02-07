@@ -62,7 +62,7 @@ public class TestActivity extends AppCompatActivity {
         //intent
         Intent myIntent = getIntent();
 
-        // Inizializzazione Giroscopio
+        // Inizializzazione giroscopio
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
         HandlerThread thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);

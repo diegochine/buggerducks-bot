@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity {
         mapLayout.setNumColumns(map.getDimension().second);
         mapLayout.setAdapter(new CellAdapter(this, R.drawable.empty_square, map.getDimension().first*map.getDimension().second));
 
-        // Inizializzazione Giroscopio
+        // Inizializzazione giroscopio
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         HandlerThread thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);
