@@ -193,7 +193,7 @@ public class MapActivity extends AppCompatActivity {
         return f;
     }
 
-    private void gestisci_eccezioni(TestActivity.MyRunnable r) {
+    private void gestisci_eccezioni(MyRunnable r) {
         try {
             r.run();
         } catch (IOException e) {

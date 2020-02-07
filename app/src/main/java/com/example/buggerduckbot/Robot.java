@@ -112,7 +112,7 @@ public class Robot {
         giroscopio.register();
     }
 
-    private void raccogli_mina(){
+    public void raccogli_mina(){
         try {
             motore_pinza.setTimePower(70, 300, 400, 300, true);
             motore_pinza.waitUntilReady();
@@ -124,7 +124,7 @@ public class Robot {
         }
     }
 
-    private void posa_mina(){
+    public void posa_mina(){
         try {
             motore_pinza.setTimePower(-70, 300, 300, 300, true);
             motore_pinza.waitUntilReady();
@@ -136,17 +136,19 @@ public class Robot {
         }
     }
 
-    private void avanza() { //di una casella
+    public void avanza() { //di una casella
         try{
-            motore_dx.setTimePower(50, 780, 890, 1000, true);
-            motore_sx.setTimePower(50, 780, 890, 1000, true);
+            motore_dx.setTimePower(70, 780, 890, 1000, true);
+            motore_sx.setTimePower(71, 780, 890, 1000, true);
 
-            motore_dx.waitUntilReady();
-            motore_sx.waitUntilReady();
+            motore_dx.waitCompletion();
+            motore_sx.waitCompletion();
+
+            Thread.sleep(1000);
         } catch (IOException e) {
             connesso=false;
             e.printStackTrace();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
         stop();
@@ -161,34 +163,49 @@ public class Robot {
     }
 
     private float differenza_angolo_dx(float iniziale, float attuale) {
-        if (iniziale * attuale < 0) {//discordi
-            if (iniziale < 0) return (180 + iniziale) + (180 - attuale);
-            else return Math.abs(attuale) + iniziale;
+        float diff_angolo;
+        if(iniziale * attuale > 0 ) diff_angolo = Math.abs(attuale - iniziale);
+        else {
+            //sono per forza discordi
+            if (iniziale > 0) diff_angolo = (180 - iniziale) + (180 + attuale);
+            else diff_angolo = Math.abs(iniziale) + attuale;
         }
-        return Math.abs(iniziale - attuale);
+        return diff_angolo;
     }
 
-    private void gira_dx(float gradi) {
+    public void gira_dx(float gradi, int power) {
         try {
             Thread.sleep(500);
         }catch (InterruptedException ex){}
 
+        while(giroscopio.getOrientation()==null){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         float angolo_inizale = giroscopio.getOrientation();
-        float limite = gradi*0.9f;
+        float angolo = 0;
+        float limite = gradi*0.8f;
 
         try {
-            motore_dx.setPower(-30);
-            motore_sx.setPower(30);
+            motore_dx.setPower(-power);
+            motore_sx.setPower(power);
 
             motore_dx.start();
             motore_sx.start();
 
-            while (differenza_angolo_dx(angolo_inizale, giroscopio.getOrientation()) < limite) ;
-            while (differenza_angolo_dx(angolo_inizale, giroscopio.getOrientation()) < gradi) {
-                float percentuale = (giroscopio.getOrientation()-limite) / (gradi - limite);
 
-                motore_dx.setPower( (int)(-30 * percentuale));
-                motore_sx.setPower((int)(30 * percentuale));//FIXME non so se rallenti troppo e non riesca a fermarsi perche non raggiunge mai l' angolo
+            while (angolo < limite){
+                angolo = differenza_angolo_dx(angolo_inizale, giroscopio.getOrientation());
+            }
+
+            motore_dx.setPower(-power/2);
+            motore_sx.setPower(power/2);
+
+            while (angolo < gradi) {
+                angolo = differenza_angolo_dx(angolo_inizale, giroscopio.getOrientation());
             }
 
             motore_dx.stop();
