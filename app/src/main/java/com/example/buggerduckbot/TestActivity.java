@@ -69,27 +69,25 @@ public class TestActivity extends AppCompatActivity {
         dx.setOnClickListener((e)->{
             for(int i=0; i<4; ++i) rb.gira_dx(90, 30);
         });
-        /*
-        sx.setOnClickListener((e)->{
-            if(connected){
-               //stato.setText("non posso ancora andare a sinistra");
-                //prendiMina();
 
-                val_sens.setText(""+ leggiSensore());
+        sx.setOnClickListener((e)->{
+            if(rb.connetiti()){
+                for(int i=0; i<4; ++i) rb.gira_sx(90, 30);
             }
         });
 
-
         stop.setOnClickListener((e)->{
-            if(connected){
-                stoppa_tutto();
+            if(rb.connetiti()){
+                rb.stop();
             }
         });
 
         special.setOnClickListener((e)->{
-            if(connected){
-
+            if(rb.connetiti()){
+                rb.gira_sx(90,30);
+                rb.gira_dx(90,30);
+                rb.avanza();
             }
-        });*/
+        });
     }
 }

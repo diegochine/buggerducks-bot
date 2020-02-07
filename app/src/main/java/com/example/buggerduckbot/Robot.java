@@ -138,8 +138,8 @@ public class Robot {
 
     public void avanza() { //di una casella
         try{
-            motore_dx.setTimePower(70, 780, 890, 1000, true);
-            motore_sx.setTimePower(71, 780, 890, 1000, true);
+            motore_dx.setTimePower(70, 780, 1200, 1000, true);
+            motore_sx.setTimePower(72, 780, 1200, 1000, true);
 
             motore_dx.waitCompletion();
             motore_sx.waitCompletion();
@@ -155,11 +155,12 @@ public class Robot {
     }
 
     private float differenza_angolo_sx(float iniziale, float attuale) {
+        float dif_angolo_sx;
         if (iniziale * attuale < 0) {//discordi
-            if (iniziale > 0) return (180 - iniziale) + (180 + attuale);
-            else return Math.abs(iniziale) + attuale;
+            if (iniziale < 0) return (180 + iniziale) + (180 - attuale);
+            else return Math.abs(attuale) + iniziale;
         }
-        return Math.abs(iniziale - attuale);
+        return Math.abs(attuale - iniziale);
     }
 
     private float differenza_angolo_dx(float iniziale, float attuale) {
@@ -206,6 +207,48 @@ public class Robot {
 
             while (angolo < gradi) {
                 angolo = differenza_angolo_dx(angolo_inizale, giroscopio.getOrientation());
+            }
+
+            motore_dx.stop();
+            motore_sx.stop();
+        }catch (IOException e){
+            connesso=false;
+            e.printStackTrace();
+        }
+    }
+    public void gira_sx(float gradi, int power) {
+        try {
+            Thread.sleep(500);
+        }catch (InterruptedException ex){}
+
+        while(giroscopio.getOrientation()==null){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        float angolo_inizale = giroscopio.getOrientation();
+        float angolo = 0;
+        float limite = gradi*0.8f;
+
+        try {
+            motore_dx.setPower(power);
+            motore_sx.setPower(-power);
+
+            motore_dx.start();
+            motore_sx.start();
+
+
+            while (angolo < limite){
+                angolo = differenza_angolo_sx(angolo_inizale, giroscopio.getOrientation());
+            }
+
+            motore_dx.setPower(power/2);
+            motore_sx.setPower(-power/2);
+
+            while (angolo < gradi) {
+                angolo = differenza_angolo_sx(angolo_inizale, giroscopio.getOrientation());
             }
 
             motore_dx.stop();
