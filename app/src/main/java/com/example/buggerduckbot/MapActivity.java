@@ -27,21 +27,10 @@ import it.unive.dais.legodroid.lib.util.Prelude;
 
 public class MapActivity extends AppCompatActivity {
 
-    private TextView textOutput;
+    private TextView output_errori, output_stato;
 
-    private boolean connected;
-    private EV3 ev3;
-    private TachoMotor motoreDx, motoreSx, pinza;
-    private UltrasonicSensor sensore;
-
+    Robot robot;
     Pair<Integer, Integer> dimMap, posIniziale;
-
-    private Float angolo, no_mina;
-    Direzione d;
-
-    public interface MyRunnable {
-        void run() throws IOException;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +38,11 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        //grafica
+        //ottenimento elementi grafici dalla UI
         Button connectButton = findViewById(R.id.connectionBtn);
-        textOutput = findViewById(R.id.errori);
-        TextView connectionString = findViewById(R.id.connectionString);
+        output_errori = findViewById(R.id.errori);
+        output_stato = findViewById(R.id.connectionString);
+
 
         //intent
         Intent myIntent = getIntent();
@@ -66,222 +56,36 @@ public class MapActivity extends AppCompatActivity {
         mapLayout.setNumColumns(map.getDimension().second);
         mapLayout.setAdapter(new CellAdapter(this, R.drawable.empty_square, map.getDimension().first*map.getDimension().second));
 
-        // Inizializzazione giroscopio
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor giroscopio = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        HandlerThread thread = new HandlerThread("Sensor thread", Thread.MAX_PRIORITY);
-        thread.start();
-        Handler handler = new Handler(thread.getLooper());
-        connected = false;
-        angolo = new Float(0);
+       //Robot
+        robot = new Robot(this);
 
-        SensorEventListener listener = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                float[] rotationMatrix = new float[16];
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
-
-                // Remap coordinate system
-                float[] remappedRotationMatrix = new float[16];
-                SensorManager.remapCoordinateSystem(rotationMatrix,
-                        SensorManager.AXIS_X,
-                        SensorManager.AXIS_Z,
-                        remappedRotationMatrix);
-
-                // Convert to orientations
-                float[] orientations = new float[3];
-                SensorManager.getOrientation(remappedRotationMatrix, orientations);
-
-                //Convert radiant to degree
-                for (int i = 0; i < 3; i++) {
-                    orientations[i] = (float) (Math.toDegrees(orientations[i]));
-                }
-
-                angolo = orientations[0];
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                //che cazzo ne so
-            }
-        };
-
-        sensorManager.registerListener(listener, giroscopio, Sensor.REPORTING_MODE_CONTINUOUS, handler);
-
-        // Connessione con il robot
+        //iniziallizazione elementi grafici
+        output_stato.setText(R.string.notConnectionString);
+        output_errori.setText(R.string.noErrorString);
         connectButton.setOnClickListener((e) -> {
-            try {
-                // connect to EV3 via bluetooth
-                if (!connected) {
-                    BluetoothConnection.BluetoothChannel ch = new BluetoothConnection("DUCK").connect(); // replace with your own brick name
-
-                    ev3 = new EV3(ch);
-                    connected = true;
-                    connectionString.setText(R.string.connectionString);
-                    textOutput.setText(R.string.noErrorString);
-
-                    if(task == 1){
-                        Prelude.trap(() -> ev3.run(this::taskOne));
-                    }else if(task == 2){
-                        Prelude.trap(() -> ev3.run(this::taskTwo));
-                    }else if (task == 3){
-                        Prelude.trap(() -> ev3.run(this::taskThree));
-                    }
-
-                }
-            } catch (IOException ex) {
-                textOutput.setText(R.string.connectionError);
-            }
-        });
-    }
-
-    /**
-     * Le nostre funzioni
-     * */
-
-    /**
-     * Inizializza motori e sensori del robot ad inizio task
-     */
-    private void inizialization(EV3.Api api) {
-        motoreDx = api.getTachoMotor(EV3.OutputPort.A);
-        motoreSx = api.getTachoMotor(EV3.OutputPort.D);
-        pinza = api.getTachoMotor(EV3.OutputPort.C);
-        sensore = api.getUltrasonicSensor(EV3.InputPort._1);
-        d = new Direzione();
-
-        gestisci_eccezioni(() -> {
-            motoreDx.setType(TachoMotor.Type.LARGE);
-            motoreSx.setType(TachoMotor.Type.LARGE);
-            pinza.setType(TachoMotor.Type.MEDIUM);
-
-            motoreDx.setPolarity(TachoMotor.Polarity.FORWARD);
-            motoreSx.setPolarity(TachoMotor.Polarity.FORWARD);
-            pinza.setPolarity(TachoMotor.Polarity.FORWARD);
-
-            motoreDx.resetPosition();
-            motoreSx.resetPosition();
-            pinza.resetPosition();
-
-            no_mina = leggiSensore();
-
-            stoppa_tutto();
-        });
-
-    }
-
-    private float leggiSensore(){
-        Future<Float> ff = null;
-        Float f = null;
-        try{
-            while(f == null){
-                if(ff == null || ff.isCancelled()){
-                    ff = sensore.getDistance();
+            //Se non sei gia connesso connettiti
+            if (!robot.isConnesso()) {
+                if(robot.connetiti()){
+                    output_stato.setText(R.string.connectionString);
                 }else{
-                    if( ff.isDone()){
-                        f = ff.get();
-                    }else{
-                        Thread.sleep(50);
-                    }
+                    output_stato.setText(R.string.connectionError);
                 }
             }
-        }catch (IOException e1){
-            textOutput.setText(R.string.connectionError);
-            connected = false;
-        }catch (ExecutionException | InterruptedException e2){
-            textOutput.setText("Il future xe nda in merda");
-        }
-        return f;
-    }
-
-    private void gestisci_eccezioni(MyRunnable r) {
-        try {
-            r.run();
-        } catch (IOException e) {
-            textOutput.setText(R.string.connectionError);
-            connected = false;
-        }
-    }
-
-    private void prendiMina(){
-        gestisci_eccezioni(()->{
-            pinza.setTimePower(70, 300, 400, 300, true);
-        });
-    }
-
-    private void lasciaMina(){
-        gestisci_eccezioni(()->{
-            pinza.setTimePower(-70, 300, 300, 300, true);
-        });
-    }
-
-    private void vai_avanti() { //di una casella
-        gestisci_eccezioni(() -> {
-            motoreDx.waitCompletion();
-            motoreSx.waitCompletion();
-
-            motoreDx.setTimePower(50, 780, 890, 1000, true);
-            motoreSx.setTimePower(51, 780, 890, 1000, true);
-
-            motoreDx.waitCompletion();
-            motoreSx.waitCompletion();
-
-            stoppa_tutto();
-        });
-    }
-
-    private float differenza_angoloDx(float startAngle, float actualAngle) {
-        if (startAngle * actualAngle < 0) {//discordi
-            if (startAngle > 0) return (180 - startAngle) + (180 + actualAngle);
-            else return Math.abs(startAngle) + actualAngle;
-        }
-        return Math.abs(startAngle - actualAngle);
-    }
-
-    private void gira_dx() {
-        gestisci_eccezioni(() -> {
-            motoreDx.waitCompletion();
-            motoreSx.waitCompletion();
-
-            try {
-                Thread.sleep(500);
-            }catch (InterruptedException ex){}
-
-            float angoloInizale = angolo;
-
-            motoreDx.setPower(-10);
-            motoreSx.setPower(10);
-
-            motoreDx.start();
-            motoreSx.start();
-
-            while (differenza_angoloDx(angoloInizale, angolo) < 89);
-
-            motoreDx.stop();
-            motoreSx.stop();
-
-            d.giraDx();
-            //textOutput.setText("so riva more");
+            if(task == 1){
+                taskOne();
+            }else if(task == 2){
+                taskTwo();
+            }else if (task == 3){
+                taskThree();
+            }
         });
     }
 
 
-    private void stoppa_tutto() {
-        gestisci_eccezioni(() -> {
-            motoreDx.stop();
-            motoreSx.stop();
-            pinza.stop();
-        });
-    }
-    /**
-     * Esecuzione dei Task
-     * */
-
-    private void taskOne(EV3.Api api){
-        this.inizialization(api);
-
+    private void taskOne(){
         int n_mine=1;//FIXME va preso da input il numero di mine
 
-        boolean colonne [] = new boolean[dimMap.first];
+        boolean [] colonne = new boolean[dimMap.first];
         for(int i =0; i<dimMap.first; ++i) colonne[i]=false;
 
         int px = posIniziale.first, py = posIniziale.second;
@@ -291,7 +95,7 @@ public class MapActivity extends AppCompatActivity {
             int col = go_to_new_col(px, py, colonne);
             boolean mina = scan_col();
             if(mina){
-                prendiMina();
+                robot.raccogli_mina();
                 --n_mine;
                 dep_mina(px, py);
             }else{
@@ -301,34 +105,34 @@ public class MapActivity extends AppCompatActivity {
     }
 
     void dep_mina (int x, int y){
-        punta_indietro();
+        robot.punta_indietro();
         while(y>0){
-            vai_avanti();
+            robot.avanza();
             --y;
         }
         if(x > posIniziale.first){
-            punta_sx();
+            robot.punta_sx();
             while(x>posIniziale.first){
-                vai_avanti();
+                robot.avanza();
                 --x;
             }
         }else if (x < posIniziale.first){
-            punta_dx();
+            robot.punta_dx();
             while(x<posIniziale.first){
-                vai_avanti();
+                robot.avanza();
                 ++x;
             }
         }
-        punta_indietro();
-        vai_avanti();
-        lasciaMina();
+        robot.punta_indietro();
+        robot.avanza();
+        robot.posa_mina();
         try {
             Thread.sleep(1500);
         }catch (InterruptedException e){
-                textOutput.setText(R.string.sleepError);
+                output_errori.setText(R.string.sleepError);
         }
-        punta_su();
-        vai_avanti();
+        robot.punta_avanti();
+        robot.avanza();
     }
 
     //puo essere chiamata solo se il robot è nella prima riga (aka y=0) FIXME se ci sono mine
@@ -337,22 +141,22 @@ public class MapActivity extends AppCompatActivity {
         int prima_libera;
         for(prima_libera=0; col[prima_libera]; ++prima_libera);//FIXME do per scontato che non posso finire le colonne se non ho finito le mine
         if(prima_libera < x){//devo andare a sinistra
-            punta_sx();
+            robot.punta_sx();
             while(x!=prima_libera){
-                vai_avanti();
+                robot.avanza();
                 --x;
             }
 
         }else if (prima_libera > x){//è a destra
-            punta_dx();
+            robot.punta_dx();
             while(x!=prima_libera){
-                vai_avanti();
+                robot.avanza();
                 ++x;
             }
 
         }
         //anche se è sopra di me (aka x==primalibera)
-        punta_su();
+        robot.punta_avanti();
         return prima_libera;
     }
 
@@ -362,79 +166,27 @@ public class MapActivity extends AppCompatActivity {
         int maxY = dimMap.second;
         boolean mina = false;
         for(int y=0; y<maxY && !mina; ++y){
-            vai_avanti();
-            mina = cerca_mina();
+            robot.avanza();
+            mina = robot.presenza_mina();
         }
         if( mina ){
             return true;
         }else{
-            punta_indietro();
+            robot.punta_indietro();
             while(maxY>0){
-                vai_avanti();
+                robot.avanza();
                 --maxY;
             }
             return false;
         }
     }
 
-    boolean cerca_mina(){
-        return leggiSensore() < (no_mina - no_mina*0.15);
-    }
 
-    void punta_su(){
-        if(d.isAvanti())return;
-        if(d.isDx()){
-            //gira_sx(); FIXME
-        }else{
-            gira_dx();
-            if(d.isSx()){
-                gira_dx();
-            }
-        }
-    }
-
-    void punta_sx(){
-        if(d.isSx())return;
-        if(d.isAvanti()){
-            //gira_sx(); FIXME
-        }else{
-            gira_dx();
-            if(d.isIndietro()){
-                gira_dx();
-            }
-        }
-    }
-
-    void punta_dx(){
-        if(d.isDx())return;
-        if(d.isIndietro()){
-            //gira_sx(); FIXME
-        }else{
-            gira_dx();
-            if(d.isAvanti()){
-                gira_dx();
-            }
-        }
-    }
-
-    void punta_indietro(){
-        if(d.isIndietro())return;
-        if(d.isSx()){
-            //gira_sx(); FIXME
-        }else{
-            gira_dx();
-            if(d.isDx()){
-                gira_dx();
-            }
-        }
-    }
-
-    private void taskTwo(EV3.Api api){
-        this.inizialization(api);
+    private void taskTwo(){
 
     }
 
-    private void taskThree(EV3.Api api){
-        this.inizialization(api);
+    private void taskThree(){
+
     }
 }

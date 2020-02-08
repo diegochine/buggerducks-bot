@@ -49,4 +49,5 @@ public class Direzione {
     public void giraSx(){
         d = (d-1)%4;
     }
+    public void voltati(){ d = (d+2)%4; }
 }

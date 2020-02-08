@@ -14,5 +14,5 @@
     <string name="connectionError">Errore di connessione</string>
     <string name="alredyConnected">Sei già connesso</string>
     <string name="needConnection">Devi prima connetterti al robot</string>
-    <string name="sleepError">A sleep xe ndada in axeo</string>
+    <string name="sleepError">Il Thread ha avuto problemi con la sleep</string>
 </resources>

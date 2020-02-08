@@ -21,7 +21,9 @@ public class Robot {
     private EV3 ev3;
     private BluetoothConnection.BluetoothChannel ch;
     private Giroscopio giroscopio;
+    private Direzione d;
 
+    //costruttore
     public Robot (Context c){
         motore_dx = null;
         motore_sx = null;
@@ -30,8 +32,10 @@ public class Robot {
         ev3 = null;
         connesso = false;
         giroscopio = new Giroscopio(c);
+        d = new Direzione();
     }
 
+    //gestione connessione
     public boolean connetiti(){
         if(connesso)return true;
         try {
@@ -54,7 +58,10 @@ public class Robot {
         return connesso;
     }
 
+    //sensore
+    //ritorna -1 se il robot non è connesso
     private float leggiSensore(){
+        if(!connesso)return -1;
         Future<Float> ff = null;
         Float f = null;
         try{
@@ -77,17 +84,15 @@ public class Robot {
         return f;
     }
 
-    public void stop(){
-        try {
-            motore_sx.stop();
-            motore_dx.stop();
-            motore_pinza.stop();
-        } catch (IOException e) {
-            connesso=false;
-            e.printStackTrace();
-        }
+    public boolean presenza_mina(){
+        if(!connesso)return false;
+        //dato che so che è connesso non mi darà mai -1
+        float distanza_attuale = leggiSensore();
+        float limite = distanza_suolo * 0.85f;
+        return distanza_attuale < limite;
     }
 
+    //inizializzazione
     private void inizializza(EV3.Api api){
         motore_dx = api.getTachoMotor(EV3.OutputPort.A);
         motore_sx = api.getTachoMotor(EV3.OutputPort.D);
@@ -112,7 +117,10 @@ public class Robot {
         giroscopio.register();
     }
 
+
+    //utilizzo pinza
     public void raccogli_mina(){
+        if(!connesso)return;
         try {
             motore_pinza.setTimePower(70, 300, 400, 300, true);
             motore_pinza.waitUntilReady();
@@ -125,6 +133,7 @@ public class Robot {
     }
 
     public void posa_mina(){
+        if(!connesso)return;
         try {
             motore_pinza.setTimePower(-70, 300, 300, 300, true);
             motore_pinza.waitUntilReady();
@@ -136,7 +145,21 @@ public class Robot {
         }
     }
 
+    //motori
+    public void stop(){
+        if(!connesso)return;
+        try {
+            motore_sx.stop();
+            motore_dx.stop();
+            motore_pinza.stop();
+        } catch (IOException e) {
+            connesso=false;
+            e.printStackTrace();
+        }
+    }
+
     public void avanza() { //di una casella
+        if(!connesso)return;
         try{
             motore_dx.setTimePower(70, 780, 1200, 1000, true);
             motore_sx.setTimePower(72, 780, 1200, 1000, true);
@@ -154,6 +177,7 @@ public class Robot {
         stop();
     }
 
+    //rotazione
     private float differenza_angolo_sx(float iniziale, float attuale) {
         float dif_angolo_sx;
         if (iniziale * attuale < 0) {//discordi
@@ -174,7 +198,8 @@ public class Robot {
         return diff_angolo;
     }
 
-    public void gira_dx(float gradi, int power) {
+    private void gira_dx(float gradi, int power) {
+        if(!connesso)return;
         try {
             Thread.sleep(500);
         }catch (InterruptedException ex){}
@@ -216,7 +241,9 @@ public class Robot {
             e.printStackTrace();
         }
     }
-    public void gira_sx(float gradi, int power) {
+
+    private void gira_sx() {
+        if(!connesso)return;
         try {
             Thread.sleep(500);
         }catch (InterruptedException ex){}
@@ -228,13 +255,14 @@ public class Robot {
                 e.printStackTrace();
             }
         }
+
         float angolo_inizale = giroscopio.getOrientation();
         float angolo = 0;
-        float limite = gradi*0.8f;
+        float limite = 90*0.8f;
 
         try {
-            motore_dx.setPower(power);
-            motore_sx.setPower(-power);
+            motore_dx.setPower(30);
+            motore_sx.setPower(-30);
 
             motore_dx.start();
             motore_sx.start();
@@ -244,10 +272,10 @@ public class Robot {
                 angolo = differenza_angolo_sx(angolo_inizale, giroscopio.getOrientation());
             }
 
-            motore_dx.setPower(power/2);
-            motore_sx.setPower(-power/2);
+            motore_dx.setPower(15);
+            motore_sx.setPower(-15);
 
-            while (angolo < gradi) {
+            while (angolo < 90) {
                 angolo = differenza_angolo_sx(angolo_inizale, giroscopio.getOrientation());
             }
 
@@ -256,6 +284,63 @@ public class Robot {
         }catch (IOException e){
             connesso=false;
             e.printStackTrace();
+        }
+    }
+
+    //cambio direzione
+    public void punta_avanti(){
+        if(d.isAvanti())return;
+        if(d.isDx()){
+            gira_sx();
+            d.giraSx();
+        }else if(d.isSx()){
+            gira_dx(90,30);
+            d.giraDx();
+        }else{//è verso indietro
+            gira_dx(180, 40);
+            d.voltati();
+        }
+    }
+
+    public void punta_sx(){
+        if(d.isSx())return;
+        if(d.isAvanti()){
+            gira_sx();
+            d.giraSx();
+        }else if(d.isIndietro()){
+            gira_dx(90, 30);
+            d.giraDx();
+        }else{//è verso destra
+            gira_dx(180, 40);
+            d.voltati();
+        }
+    }
+
+    public void punta_dx(){
+        if(d.isDx())return;
+        if(d.isIndietro()){
+            gira_sx();
+            d.giraSx();
+        }else if(d.isAvanti()){
+            gira_dx(90, 30);
+            d.giraDx();
+        }else{//è verso sinistra
+            gira_dx(180, 40);
+            d.voltati();
+        }
+    }
+
+    public void punta_indietro(){
+        if(d.isIndietro())return;
+        if(d.isSx()){
+            gira_sx();
+            d.giraSx();
+        }else if(d.isDx()){
+            gira_dx(90, 30);
+            d.giraDx();
+        }else{//sta guardando avanti
+            gira_dx(180, 40);
+            d.giraDx();
         }
     }
 }

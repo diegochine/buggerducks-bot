@@ -67,27 +67,22 @@ public class TestActivity extends AppCompatActivity {
         avanti.setOnClickListener( e -> rb.avanza() );
 
         dx.setOnClickListener((e)->{
-            for(int i=0; i<4; ++i) rb.gira_dx(90, 30);
+            rb.punta_dx();
         });
 
         sx.setOnClickListener((e)->{
-            if(rb.connetiti()){
-                for(int i=0; i<4; ++i) rb.gira_sx(90, 30);
-            }
+            rb.punta_sx();
         });
 
         stop.setOnClickListener((e)->{
-            if(rb.connetiti()){
-                rb.stop();
-            }
+            rb.stop();
         });
 
         special.setOnClickListener((e)->{
-            if(rb.connetiti()){
-                rb.gira_sx(90,30);
-                rb.gira_dx(90,30);
-                rb.avanza();
-            }
+           rb.punta_avanti();
+           rb.avanza();
+           rb.punta_indietro();
+           rb.avanza();
         });
     }
 }
