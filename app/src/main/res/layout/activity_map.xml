@@ -29,10 +29,13 @@
     <GridView
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:columnWidth="100dp"
-        android:gravity="center"
-        android:numColumns="auto_fit" />
+        android:layout_height="wrap_content"
+        android:verticalSpacing="0dp"
+        android:scaleType="centerCrop"
+        android:stretchMode="columnWidth"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal|center_vertical"
+        android:numColumns="auto_fit"/>
 
 
 </LinearLayout>
