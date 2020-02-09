@@ -55,19 +55,23 @@ public class Map implements Parcelable {
     }
 
     public void moveUp(){
-        this.position = new Pair<>(this.position.first, this.position.second-1);
+        if(this.position.first-1 > 0)
+            this.position = new Pair<>(this.position.first-1, this.position.second);
     }
 
     public void moveDown(){
-        this.position = new Pair<>(this.position.first, this.position.second+1);
+        if(this.position.first+1 < this.dimension.first)
+            this.position = new Pair<>(this.position.first+1, this.position.second);
     }
 
     public void moveLeft(){
-        this.position = new Pair<>(this.position.first-1, this.position.second);
+        if(this.position.second-1 > 0)
+            this.position = new Pair<>(this.position.first, this.position.second-1);
     }
 
     public void moveRight(){
-        this.position = new Pair<>(this.position.first+1, this.position.second);
+        if(this.position.second+1 < this.dimension.second)
+            this.position = new Pair<>(this.position.first, this.position.second+1);
     }
 
     @Override
