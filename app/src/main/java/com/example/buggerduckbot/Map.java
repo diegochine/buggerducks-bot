@@ -18,6 +18,8 @@ public class Map implements Parcelable {
     public Map(Pair<Integer, Integer> dimension, Pair<Integer, Integer> initialPosition) {
         this.dimension = dimension;
         this.initialPosition = initialPosition;
+        this.position = initialPosition;
+        this.balls = new ArrayList<>();
     }
 
     public Map(Parcel in){
@@ -48,11 +50,15 @@ public class Map implements Parcelable {
         return balls;
     }
 
-    public void moveForward(){
+    public void addBall(Pair<Integer, Integer> position){
+        this.balls.add(position);
+    }
+
+    public void moveUp(){
         this.position = new Pair<>(this.position.first, this.position.second-1);
     }
 
-    public void moveBackward(){
+    public void moveDown(){
         this.position = new Pair<>(this.position.first, this.position.second+1);
     }
 
