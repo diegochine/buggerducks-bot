@@ -15,4 +15,5 @@
     <string name="alredyConnected">Sei già connesso</string>
     <string name="needConnection">Devi prima connetterti al robot</string>
     <string name="sleepError">Il Thread ha avuto problemi con la sleep</string>
+    <string name="mineNumber">Numero di mine</string>
 </resources>

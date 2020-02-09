@@ -16,6 +16,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -30,8 +31,6 @@ public class MapActivity extends AppCompatActivity {
     private TextView output_errori, output_stato;
 
     Robot robot;
-    Pair<Integer, Integer> dimMap, posIniziale;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //inizializzazione activity
@@ -48,8 +47,8 @@ public class MapActivity extends AppCompatActivity {
         Intent myIntent = getIntent();
         Map map = myIntent.getParcelableExtra("map");
         int task = myIntent.getIntExtra("taskId", 0);
-        dimMap = map.getDimension();
-        posIniziale = map.getInitialPosition();
+        Pair<Integer, Integer> dimMap = map.getDimension();
+        Pair<Integer, Integer> posIniziale = map.getInitialPosition();
 
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
@@ -72,7 +71,11 @@ public class MapActivity extends AppCompatActivity {
                 }
             }
             if(task == 1){
-                taskOne();
+                //first = x
+                //second = y
+                //x = numero colonne
+                //y = numero righe
+                //taskOne();
             }else if(task == 2){
                 taskTwo();
             }else if (task == 3){
@@ -82,45 +85,57 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    private void taskOne(){
+    private  ArrayList <Pair<Integer, Integer>> taskOne(int colonna_iniziale, int n_righe, int n_colonne){
         int n_mine=1;//FIXME va preso da input il numero di mine
+        int riga = 0;
+        int colonna = colonna_iniziale;
 
-        boolean [] colonne = new boolean[dimMap.first];
-        for(int i =0; i<dimMap.first; ++i) colonne[i]=false;
+        boolean [] colonne = new boolean[n_colonne];
+        for(int i =0; i<n_colonne; ++i) colonne[i]=false;
 
-        int px = posIniziale.first, py = posIniziale.second;
+        ArrayList <Pair<Integer, Integer>> mine = new ArrayList<>();
 
         while(n_mine > 0){
             //TODO pulisci prima riga
-            int col = go_to_new_col(px, py, colonne);
-            boolean mina = scan_col();
-            if(mina){
+            colonna = go_to_new_col(riga, colonna, colonne);
+            riga = scan_col(n_righe);
+            if(riga != 0){//se ha trovato un mina si ferma sopra essa
                 robot.raccogli_mina();
                 --n_mine;
-                dep_mina(px, py);
-            }else{
-                colonne[col]=true;
+                dep_mina(riga, colonna, colonna_iniziale);
+
+                mine.add(new Pair<>(riga, colonna));
+
+                riga = 0;
+                colonna = colonna_iniziale;
+            }else{// se non ha trovato una mina torna nella righa 0
+                colonne[colonna]=true;
             }
         }
+        return mine;
     }
 
-    void dep_mina (int x, int y){
+    void dep_mina (int riga, int colonna, int colonna_iniziale){
         robot.punta_indietro();
-        while(y>0){
+
+        //torno sulla prima riga
+        while(riga>0){
             robot.avanza();
-            --y;
+            --riga;
         }
-        if(x > posIniziale.first){
+
+        //vado davanti la safezone
+        if(colonna > colonna_iniziale){
             robot.punta_sx();
-            while(x>posIniziale.first){
+            while(colonna > colonna_iniziale){
                 robot.avanza();
-                --x;
+                --colonna;
             }
-        }else if (x < posIniziale.first){
+        }else if (colonna < colonna_iniziale){
             robot.punta_dx();
-            while(x<posIniziale.first){
+            while(colonna < colonna_iniziale){
                 robot.avanza();
-                ++x;
+                ++colonna;
             }
         }
         robot.punta_indietro();
@@ -136,22 +151,21 @@ public class MapActivity extends AppCompatActivity {
     }
 
     //puo essere chiamata solo se il robot è nella prima riga (aka y=0) FIXME se ci sono mine
-    int go_to_new_col(int x, int y, boolean [] col){
-        int maxX = dimMap.first;
+    int go_to_new_col(int colonna, int n_colonne, boolean [] col){
         int prima_libera;
-        for(prima_libera=0; col[prima_libera]; ++prima_libera);//FIXME do per scontato che non posso finire le colonne se non ho finito le mine
-        if(prima_libera < x){//devo andare a sinistra
+        for(prima_libera=0; col[prima_libera]; ++prima_libera);//do per scontato che non posso finire le colonne se non ho finito le mine
+        if(prima_libera < colonna){//devo andare a sinistra
             robot.punta_sx();
-            while(x!=prima_libera){
+            while(colonna!=prima_libera){
                 robot.avanza();
-                --x;
+                --colonna;
             }
 
-        }else if (prima_libera > x){//è a destra
+        }else if (prima_libera > colonna){//è a destra
             robot.punta_dx();
-            while(x!=prima_libera){
+            while(colonna!=prima_libera){
                 robot.avanza();
-                ++x;
+                ++colonna;
             }
 
         }
@@ -162,22 +176,22 @@ public class MapActivity extends AppCompatActivity {
 
     //ritorna true se ha finito la colonna
     //false se ha trovato una pallina
-    boolean scan_col(){
-        int maxY = dimMap.second;
+    int scan_col(int n_righe){
         boolean mina = false;
-        for(int y=0; y<maxY && !mina; ++y){
+        int riga;
+        for(riga=0; riga<n_righe && !mina; ++riga){
             robot.avanza();
             mina = robot.presenza_mina();
         }
         if( mina ){
-            return true;
+            return riga;
         }else{
             robot.punta_indietro();
-            while(maxY>0){
+            while(n_righe>0){
                 robot.avanza();
-                --maxY;
+                --n_righe;
             }
-            return false;
+            return 0;
         }
     }
 

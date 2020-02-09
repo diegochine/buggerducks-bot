@@ -289,13 +289,13 @@ public class Robot {
 
     //cambio direzione
     public void punta_avanti(){
-        if(d.isAvanti())return;
-        if(d.isDx()){
+        if(d.is_avanti())return;
+        if(d.is_dx()){
             gira_sx();
-            d.giraSx();
-        }else if(d.isSx()){
+            d.gira_sx();
+        }else if(d.is_sx()){
             gira_dx(90,30);
-            d.giraDx();
+            d.gira_dx();
         }else{//è verso indietro
             gira_dx(180, 40);
             d.voltati();
@@ -303,13 +303,13 @@ public class Robot {
     }
 
     public void punta_sx(){
-        if(d.isSx())return;
-        if(d.isAvanti()){
+        if(d.is_sx())return;
+        if(d.is_avanti()){
             gira_sx();
-            d.giraSx();
-        }else if(d.isIndietro()){
+            d.gira_sx();
+        }else if(d.is_indietro()){
             gira_dx(90, 30);
-            d.giraDx();
+            d.gira_dx();
         }else{//è verso destra
             gira_dx(180, 40);
             d.voltati();
@@ -317,13 +317,13 @@ public class Robot {
     }
 
     public void punta_dx(){
-        if(d.isDx())return;
-        if(d.isIndietro()){
+        if(d.is_dx())return;
+        if(d.is_indietro()){
             gira_sx();
-            d.giraSx();
-        }else if(d.isAvanti()){
+            d.gira_sx();
+        }else if(d.is_avanti()){
             gira_dx(90, 30);
-            d.giraDx();
+            d.gira_dx();
         }else{//è verso sinistra
             gira_dx(180, 40);
             d.voltati();
@@ -331,16 +331,16 @@ public class Robot {
     }
 
     public void punta_indietro(){
-        if(d.isIndietro())return;
-        if(d.isSx()){
+        if(d.is_indietro())return;
+        if(d.is_sx()){
             gira_sx();
-            d.giraSx();
-        }else if(d.isDx()){
+            d.gira_sx();
+        }else if(d.is_dx()){
             gira_dx(90, 30);
-            d.giraDx();
+            d.gira_dx();
         }else{//sta guardando avanti
             gira_dx(180, 40);
-            d.giraDx();
+            d.gira_dx();
         }
     }
 }

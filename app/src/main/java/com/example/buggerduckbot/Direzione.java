@@ -14,39 +14,24 @@ public class Direzione {
         this.d = 0;
     }
 
-
-    public void setAvanti(){
-        d = 0;
-    }
-    public void setDx(){
-        d = 1;
-    }
-    public void setIndietro(){
-        d = 2;
-    }
-    public void setSx(){
-        d = 3;
-    }
-
-
-    public boolean isAvanti(){
+    public boolean is_avanti(){
         return d == 0;
     }
-    public boolean isDx(){
+    public boolean is_dx(){
         return d == 1;
     }
-    public boolean isIndietro(){
+    public boolean is_indietro(){
         return d == 2;
     }
-    public boolean isSx(){
+    public boolean is_sx(){
         return d == 3;
     }
 
 
-    public void giraDx(){
+    public void gira_dx(){
         d = (d+1)%4;
     }
-    public void giraSx(){
+    public void gira_sx(){
         d = (d-1)%4;
     }
     public void voltati(){ d = (d+2)%4; }
