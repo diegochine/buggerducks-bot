@@ -1,6 +1,8 @@
 package com.example.buggerduckbot;
 
 import android.content.Context;
+import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,18 +11,20 @@ import android.widget.ImageView;
 public class CellAdapter extends BaseAdapter {
     private final Context context;
     private final int resourceId;
-    private final int n;
+    private int height;
+    private Map map;
 
-    public CellAdapter(Context context, int resourceId, int n){
+    public CellAdapter(Context context, int resourceId,  Map map){
         this.context = context;
         this.resourceId = resourceId;
-        this.n = n;
+        this.height = 200;
+        this.map = map;
     }
 
 
     @Override
     public int getCount() {
-        return n;
+        return this.map.getCellNumber();
     }
 
     @Override
@@ -35,8 +39,31 @@ public class CellAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ImageView cell = new ImageView(this.context);
-        cell.setImageResource(resourceId);
-        return cell;
+        int y = map.getDimension().second;
+
+        if (view == null) {
+            final LayoutInflater layoutInflater = LayoutInflater.from(context);
+            view = layoutInflater.inflate(R.layout.cell_adapter, null);
+        }
+        final ImageView imageView = view.findViewById(R.id.cell);
+        Pair pair = new Pair<>(i/y, i%y);
+        if(this.map.getPosition().equals(pair)){
+            imageView.setImageResource(R.drawable.robot_square);
+        }else if (this.map.getBalls().contains(pair)){
+            imageView.setImageResource(R.drawable.square_ball);
+        }else {
+            imageView.setImageResource(this.resourceId);
+        }
+        imageView.getLayoutParams().height = this.height;
+
+        return view;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 }

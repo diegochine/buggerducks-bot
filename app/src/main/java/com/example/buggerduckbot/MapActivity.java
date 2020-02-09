@@ -53,7 +53,8 @@ public class MapActivity extends AppCompatActivity {
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
         mapLayout.setNumColumns(map.getDimension().second);
-        mapLayout.setAdapter(new CellAdapter(this, R.drawable.empty_square, map.getDimension().first*map.getDimension().second));
+        final CellAdapter cellAdapter = new CellAdapter(this, R.drawable.empty_square, map);
+        mapLayout.setAdapter(cellAdapter);
 
        //Robot
         robot = new Robot(this);
@@ -62,6 +63,11 @@ public class MapActivity extends AppCompatActivity {
         output_stato.setText(R.string.notConnectionString);
         output_errori.setText(R.string.noErrorString);
         connectButton.setOnClickListener((e) -> {
+            //Grafica della Mappa
+            cellAdapter.setHeight(mapLayout.getColumnWidth());
+            // dice alla grafica che qualcosa è cambiato e si ridisegna
+            cellAdapter.notifyDataSetChanged();
+
             //Se non sei gia connesso connettiti
             if (!robot.isConnesso()) {
                 if(robot.connetiti()){
