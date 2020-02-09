@@ -4,11 +4,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Pair;
 
+import java.util.ArrayList;
+
 
 public class Map implements Parcelable {
 
     private final Pair<Integer, Integer> dimension;
     private final Pair<Integer, Integer> initialPosition;
+    private Pair<Integer, Integer> position;
+    private ArrayList<Pair<Integer, Integer>> balls;
 
 
     public Map(Pair<Integer, Integer> dimension, Pair<Integer, Integer> initialPosition) {
@@ -30,6 +34,34 @@ public class Map implements Parcelable {
 
     public Pair<Integer, Integer> getInitialPosition() {
         return initialPosition;
+    }
+
+    public Integer getCellNumber(){
+        return dimension.first * dimension.second;
+    }
+
+    public Pair<Integer, Integer> getPosition() {
+        return position;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getBalls() {
+        return balls;
+    }
+
+    public void moveForward(){
+        this.position = new Pair<>(this.position.first, this.position.second-1);
+    }
+
+    public void moveBackward(){
+        this.position = new Pair<>(this.position.first, this.position.second+1);
+    }
+
+    public void moveLeft(){
+        this.position = new Pair<>(this.position.first-1, this.position.second);
+    }
+
+    public void moveRight(){
+        this.position = new Pair<>(this.position.first+1, this.position.second);
     }
 
     @Override

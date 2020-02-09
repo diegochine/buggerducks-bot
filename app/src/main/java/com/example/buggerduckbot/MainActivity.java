@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         EditText posX = findViewById(R.id.posX);
         EditText posY = findViewById(R.id.posY);
 
+        EditText mine = findViewById(R.id.mine);
+
         Button task1Button, task2Button, task3Button;
         task1Button = findViewById(R.id.task1Btn);
         task2Button = findViewById(R.id.task2Btn);
@@ -44,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
 
         Intent myIntent = new Intent(MainActivity.this, MapActivity.class);
 
-        task1Button.setOnClickListener(e -> this.openMap(myIntent, 1, mapX, mapY, posX, posY));
-        task2Button.setOnClickListener(e -> this.openMap(myIntent, 2, mapX, mapY, posX, posY));
-        task3Button.setOnClickListener(e -> this.openMap(myIntent, 3, mapX, mapY, posX, posY));
+        task1Button.setOnClickListener(e -> this.openMap(myIntent, 1, mapX, mapY, posX, posY, mine));
+        task2Button.setOnClickListener(e -> this.openMap(myIntent, 2, mapX, mapY, posX, posY, mine));
+        task3Button.setOnClickListener(e -> this.openMap(myIntent, 3, mapX, mapY, posX, posY, mine));
 
         Intent testIntent = new Intent (MainActivity.this, TestActivity.class);
         startActivity(testIntent);
@@ -62,11 +64,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Apre la MapActivity con i paramentri giusti
      */
-    private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy){
+    private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
         if(this.validateMapFields(x, y, posx, posy)) {
             Toast.makeText(getApplicationContext(),"I campi della mappa non possono essere vuoti", Toast.LENGTH_SHORT).show();
         }else{
             i.putExtra("taskId", task);
+            i.putExtra("mine", Integer.valueOf(mine.getText().toString()));
             i.putExtra("map", new Map(new Pair<>(Integer.valueOf(x.getText().toString()), Integer.valueOf(y.getText().toString())),
                     new Pair<>(Integer.valueOf(posx.getText().toString()), Integer.valueOf(posy.getText().toString()))));
             startActivity(i);
