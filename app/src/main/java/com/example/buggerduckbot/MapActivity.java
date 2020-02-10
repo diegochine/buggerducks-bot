@@ -141,7 +141,7 @@ public class MapActivity extends AppCompatActivity {
             boolean mina = scansione_colonna(map, d);
             if(mina){//se ha trovato un mina si ferma sopra essa
                 robot.raccogli_mina();
-                if(map.getRiga()==map.getNumeroRighe()-1) colonne[map.getColonna()]=true;
+                if(map.getRiga()== 0) colonne[map.getColonna()]=true;
                 --n_mine;
                 dep_mina(map, d);
             }else{// se non ha trovato una mina torna nella righa 0
