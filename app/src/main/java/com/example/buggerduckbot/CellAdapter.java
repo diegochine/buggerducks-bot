@@ -39,7 +39,7 @@ public class CellAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        int y = map.getDimension().second;
+        int y = map.getColonna();
 
         if (view == null) {
             final LayoutInflater layoutInflater = LayoutInflater.from(context);

@@ -9,16 +9,17 @@ import java.util.ArrayList;
 
 public class Map implements Parcelable {
 
-    private final Pair<Integer, Integer> dimension;
-    private final Pair<Integer, Integer> initialPosition;
-    private Pair<Integer, Integer> position;
+    private int numeroRighe, numeroColonne, riga, colonna, rigaIn, colonnaIn;
     private ArrayList<Pair<Integer, Integer>> balls;
 
 
-    public Map(Pair<Integer, Integer> dimension, Pair<Integer, Integer> initialPosition) {
-        this.dimension = dimension;
-        this.initialPosition = initialPosition;
-        this.position = initialPosition;
+    public Map(int n_r, int n_c, int r, int c) {
+        numeroRighe = n_r;
+        numeroColonne = n_c;
+        riga = r;
+        colonna = c;
+        rigaIn = riga;
+        colonnaIn = colonna;
         this.balls = new ArrayList<>();
     }
 
@@ -26,54 +27,53 @@ public class Map implements Parcelable {
         String[] data= new String[2];
 
         in.readStringArray(data);
-        this.dimension = new Pair<>(Integer.valueOf(data[0].substring(0,1)), Integer.valueOf(data[0].substring(2)));
-        this.initialPosition = new Pair<>(Integer.valueOf(data[1].substring(0,1)), Integer.valueOf(data[1].substring(2)));
-        this.position = this.initialPosition;
+        numeroRighe = Integer.valueOf(data[0].substring(0,1));
+        numeroColonne = Integer.valueOf(data[0].substring(2));
+        riga = Integer.valueOf(data[1].substring(0,1));
+        colonna = Integer.valueOf(data[1].substring(2));
+        colonnaIn = colonna;
+        rigaIn = riga;
         this.balls = new ArrayList<>();
     }
 
-    public Pair<Integer, Integer> getDimension() {
-        return dimension;
-    }
-
     public int getNumeroRighe(){
-        return dimension.first;
+        return numeroRighe;
     }
 
     public int getNumeroColonne(){
-        return dimension.second;
+        return numeroColonne;
     }
 
     public int getRiga(){
-        return position.first;
+        return riga;
     }
 
     public int getColonna(){
-        return position.first;
+        return colonna;
     }
 
-    public Pair<Integer, Integer> getInitialPosition() {
-        return initialPosition;
+    public Pair<Integer, Integer> getPosition(){
+        return new Pair<>(riga, colonna);
     }
 
     public int getInitialRiga(){
-        return initialPosition.first;
+        return rigaIn;
     }
 
     public int getInitialColonna(){
-        return initialPosition.second;
+        return colonnaIn;
     }
 
     public Integer getCellNumber(){
-        return dimension.first * dimension.second;
-    }
-
-    public Pair<Integer, Integer> getPosition() {
-        return position;
+        return numeroRighe * numeroColonne;
     }
 
     public ArrayList<Pair<Integer, Integer>> getBalls() {
         return balls;
+    }
+
+    public void addMina(){
+        balls.add(new Pair<>(riga, colonna));
     }
 
     public void addBall(Pair<Integer, Integer> position){
@@ -81,23 +81,19 @@ public class Map implements Parcelable {
     }
 
     public void moveUp(){
-        if(this.position.first-1 > 0)
-            this.position = new Pair<>(this.position.first-1, this.position.second);
+        riga--;
     }
 
     public void moveDown(){
-        if(this.position.first+1 < this.dimension.first)
-            this.position = new Pair<>(this.position.first+1, this.position.second);
+       riga++;
     }
 
     public void moveLeft(){
-        if(this.position.second-1 > 0)
-            this.position = new Pair<>(this.position.first, this.position.second-1);
+        colonna--;
     }
 
     public void moveRight(){
-        if(this.position.second+1 < this.dimension.second)
-            this.position = new Pair<>(this.position.first, this.position.second+1);
+        colonna++;
     }
 
     @Override
@@ -108,8 +104,8 @@ public class Map implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeStringArray(new String[]{
-                this.dimension.first + " " + this.dimension.second,
-                this.initialPosition.first + " " + this.initialPosition.second});
+                numeroRighe + " " + numeroColonne,
+                rigaIn + " " + colonnaIn});
     }
 
     public static final Parcelable.Creator<Map> CREATOR= new Parcelable.Creator<Map>() {

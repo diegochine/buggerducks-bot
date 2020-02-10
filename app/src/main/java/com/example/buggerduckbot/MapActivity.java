@@ -60,7 +60,7 @@ public class MapActivity extends AppCompatActivity {
 
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
-        mapLayout.setNumColumns(map.getDimension().second);
+        mapLayout.setNumColumns(map.getNumeroColonne());
         cellAdapter = new CellAdapter(this, R.drawable.empty_square, map);
         mapLayout.setAdapter(cellAdapter);
 

@@ -70,8 +70,11 @@ public class MainActivity extends AppCompatActivity {
         }else{
             i.putExtra("taskId", task);
             i.putExtra("mine", Integer.valueOf(mine.getText().toString()));
-            i.putExtra("map", new Map(new Pair<>(Integer.valueOf(x.getText().toString()), Integer.valueOf(y.getText().toString())),
-                    new Pair<>(Integer.valueOf(posx.getText().toString()), Integer.valueOf(posy.getText().toString()))));
+            int n_righe = Integer.valueOf(x.getText().toString());
+            int n_colonne = Integer.valueOf(y.getText().toString());
+            int riga = Integer.valueOf(posx.getText().toString());
+            int colonna = Integer.valueOf(posy.getText().toString());
+            i.putExtra("map", new Map(n_righe, n_colonne, riga, colonna));
             startActivity(i);
         }
     }
