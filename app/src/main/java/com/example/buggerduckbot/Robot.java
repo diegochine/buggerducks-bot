@@ -159,8 +159,8 @@ public class Robot {
     public void avanza() { //di una casella
         if(!connesso)return;
         try{
-            motore_dx.setTimePower(70, 780, 1200, 1000, true);
-            motore_sx.setTimePower(72, 780, 1200, 1000, true);
+            motore_dx.setTimePower(70, 780, 1300, 1000, true);
+            motore_sx.setTimePower(70, 780, 1300, 1000, true);
 
             motore_dx.waitCompletion();
             motore_sx.waitCompletion();

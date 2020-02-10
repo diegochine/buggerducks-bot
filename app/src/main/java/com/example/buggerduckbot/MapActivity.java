@@ -4,18 +4,39 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Pair;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity {
 
     private TextView output_errori, output_stato;
 
     private CellAdapter cellAdapter;
+
+    private void punta_indietro(Direzione d){
+        if(d.is_avanti())robot.voltati();
+        else if(d.is_sx())robot.gira_sx();
+        else if(d.is_dx())robot.gira_dx();
+    }
+
+    private void punta_avanti(Direzione d){
+        if(d.is_indietro())robot.voltati();
+        else if(d.is_sx())robot.gira_dx();
+        else if(d.is_dx())robot.gira_sx();
+    }
+
+    private void punta_dx(Direzione d){
+        if(d.is_sx())robot.voltati();
+        else if(d.is_avanti())robot.gira_dx();
+        else if(d.is_indietro())robot.gira_sx();
+    }
+
+    private void punta_sx(Direzione d){
+        if(d.is_dx())robot.voltati();
+        else if(d.is_avanti())robot.gira_sx();
+        else if(d.is_indietro())robot.gira_dx();
+    }
 
     Robot robot;
     @Override
@@ -64,11 +85,7 @@ public class MapActivity extends AppCompatActivity {
                 }
             }
             if(task == 1){
-                //first = x
-                //second = y
-                //x = numero colonne
-                //y = numero righe
-                //taskOne(map, n_mine);
+                taskOne(map, n_mine);
             }else if(task == 2){
 
             }else if (task == 3){
@@ -76,59 +93,54 @@ public class MapActivity extends AppCompatActivity {
             }
         });
     }
-    /*
+
     private  void taskOne(Map map, int n_mine){
         Direzione d = new Direzione(Direzione.AVANTI);
 
-        boolean [] file_da_controllare = new boolean[map.getMaxY()];
-        for(int i =0; i<map.getMaxY(); ++i) file_da_controllare[i]=false;
-
-        ArrayList <Pair<Integer, Integer>> mine = new ArrayList<>();
+        boolean [] colonne = new boolean[map.getNumeroColonne()];
+        for(int i = 0; i<map.getNumeroColonne(); ++i) colonne[i]=false;
 
         while(n_mine > 0){
             //TODO pulisci prima riga
-            go_to_new_col(riga, colonna, colonne);
-            riga = scansione_colonna(n_righe);
-            if(riga != 0){//se ha trovato un mina si ferma sopra essa
+            go_to_new_col(map, colonne, d);
+            boolean mina = scansione_colonna(map, d);
+            if(mina){//se ha trovato un mina si ferma sopra essa
                 robot.raccogli_mina();
+                if(map.getRiga()==map.getNumeroRighe()-1) colonne[map.getColonna()]=true;
                 --n_mine;
-                dep_mina(riga, colonna, colonna_iniziale);
-
-                mine.add(new Pair<>(riga, colonna));
-
-                riga = 0;
-                colonna = colonna_iniziale;
+                dep_mina(map, d);
             }else{// se non ha trovato una mina torna nella righa 0
-                colonne[colonna]=true;
+                colonne[map.getColonna()]=true;
             }
         }
-        return mine;
     }
 
-    void dep_mina (int riga, int colonna, int colonna_iniziale){
-        robot.punta_indietro();
-
+    void dep_mina (Map map, Direzione d){
         //torno sulla prima riga
-        while(riga>0){
-            robot.avanza();
-            --riga;
+        if(map.getRiga()!=map.getNumeroRighe()-1){
+            punta_indietro(d);
+            while(map.getRiga() < map.getNumeroRighe()-1){
+                robot.avanza();
+                map.moveDown();
+            }
         }
 
         //vado davanti la safezone
-        if(colonna > colonna_iniziale){
-            robot.punta_sx();
-            while(colonna > colonna_iniziale){
+        if(map.getColonna() > map.getInitialColonna()){
+            punta_sx(d);
+            while(map.getColonna() > map.getInitialColonna()){
                 robot.avanza();
-                --colonna;
+                map.moveLeft();
             }
-        }else if (colonna < colonna_iniziale){
-            robot.punta_dx();
-            while(colonna < colonna_iniziale){
+        }else if (map.getColonna() < map.getInitialColonna()){
+            punta_dx(d);
+            while(map.getColonna() < map.getInitialColonna()){
                 robot.avanza();
-                ++colonna;
+                map.moveRight();
             }
         }
-        robot.punta_indietro();
+
+        punta_indietro(d);
         robot.avanza();
         robot.posa_mina();
         try {
@@ -136,38 +148,39 @@ public class MapActivity extends AppCompatActivity {
         }catch (InterruptedException e){
                 output_errori.setText(R.string.sleepError);
         }
-        robot.punta_avanti();
+        punta_avanti(d);
         robot.avanza();
     }
 
-    //puo essere chiamata solo se il robot è nella prima riga (aka y=0) FIXME se ci sono mine
-    int go_to_new_col(int colonna, int n_colonne, boolean [] col){
+    //puo essere chiamata solo se il robot è nella prima riga (aka y=maxy)
+    private void go_to_new_col(Map map, boolean [] col, Direzione d){
         int prima_libera;
         for(prima_libera=0; col[prima_libera]; ++prima_libera);//do per scontato che non posso finire le colonne se non ho finito le mine
-        if(prima_libera < colonna){//devo andare a sinistra
-            robot.punta_sx();
-            while(colonna!=prima_libera){
+        if(prima_libera < map.getColonna()){//devo andare a sinistra
+            punta_sx(d);
+            while(map.getColonna()!=prima_libera){
                 robot.avanza();
-                --colonna;
+                map.moveLeft();
             }
 
-        }else if (prima_libera > colonna){//è a destra
-            robot.punta_dx();
-            while(colonna!=prima_libera){
+        }else if (prima_libera > map.getColonna()){//è a destra
+            punta_dx(d);
+            while(map.getColonna()!=prima_libera){
                 robot.avanza();
-                ++colonna;
+                map.moveRight();
             }
-
         }
         //anche se è sopra di me (aka x==primalibera)
-        robot.punta_avanti();
-        return prima_libera;
+
+        //devo girarmi verso su
+       punta_avanti(d);
     }
 
-   */
+
     private boolean scansione_colonna(Map map, Direzione d){
+        //do per scontato che sto guardando su
         boolean mina = false;
-        while(!mina && map.getY() > 0){
+        while(!mina && map.getRiga() > 0){
             robot.avanza();
             map.moveUp();
             mina = robot.presenza_mina();
@@ -179,7 +192,8 @@ public class MapActivity extends AppCompatActivity {
         }else{
             robot.voltati();
             d.voltati();
-            while(map.getY()<map.getMaxY()){
+            //torno nella riga iniziale
+            while(map.getRiga()<map.getNumeroRighe()-1){
                 robot.avanza();
                 map.moveDown();
             }

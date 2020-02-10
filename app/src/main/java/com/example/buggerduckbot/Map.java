@@ -36,24 +36,32 @@ public class Map implements Parcelable {
         return dimension;
     }
 
-    public int getMaxX(){
+    public int getNumeroRighe(){
         return dimension.first;
     }
 
-    public int getMaxY(){
+    public int getNumeroColonne(){
         return dimension.second;
     }
 
-    public int getX(){
+    public int getRiga(){
         return position.first;
     }
 
-    public int getY(){
+    public int getColonna(){
         return position.first;
     }
 
     public Pair<Integer, Integer> getInitialPosition() {
         return initialPosition;
+    }
+
+    public int getInitialRiga(){
+        return initialPosition.first;
+    }
+
+    public int getInitialColonna(){
+        return initialPosition.second;
     }
 
     public Integer getCellNumber(){
