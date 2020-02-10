@@ -29,6 +29,7 @@ import it.unive.dais.legodroid.lib.util.Prelude;
 public class MapActivity extends AppCompatActivity {
 
     private TextView output_errori, output_stato;
+    private Direzione d;
 
     Robot robot;
     @Override
@@ -49,6 +50,7 @@ public class MapActivity extends AppCompatActivity {
         int task = myIntent.getIntExtra("taskId", 0);
         Pair<Integer, Integer> dimMap = map.getDimension();
         Pair<Integer, Integer> posIniziale = map.getInitialPosition();
+
 
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
@@ -82,10 +84,16 @@ public class MapActivity extends AppCompatActivity {
                 //x = numero colonne
                 //y = numero righe
                 //taskOne();
+                map.addBall(new Pair <> (0,0));
+                cellAdapter.notifyDataSetChanged();
             }else if(task == 2){
-                taskTwo();
+                map.addBall(new Pair <> (1,1));
+                cellAdapter.notifyDataSetChanged();
+                //taskTwo();
             }else if (task == 3){
-                taskThree();
+                map.addBall(new Pair <> (2,2));
+                cellAdapter.notifyDataSetChanged();
+                //taskThree();
             }
         });
     }

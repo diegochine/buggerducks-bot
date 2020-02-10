@@ -21,7 +21,6 @@ public class Robot {
     private EV3 ev3;
     private BluetoothConnection.BluetoothChannel ch;
     private Giroscopio giroscopio;
-    private Direzione d;
 
     //costruttore
     public Robot (Context c){
@@ -32,7 +31,6 @@ public class Robot {
         ev3 = null;
         connesso = false;
         giroscopio = new Giroscopio(c);
-        d = new Direzione();
     }
 
     //gestione connessione
@@ -198,7 +196,7 @@ public class Robot {
         return diff_angolo;
     }
 
-    private void gira_dx(float gradi, int power) {
+    private void ruota_dx(float gradi, int power) {
         if(!connesso)return;
         try {
             Thread.sleep(500);
@@ -242,7 +240,7 @@ public class Robot {
         }
     }
 
-    private void gira_sx() {
+    public void gira_sx() {
         if(!connesso)return;
         try {
             Thread.sleep(500);
@@ -287,60 +285,11 @@ public class Robot {
         }
     }
 
-    //cambio direzione
-    public void punta_avanti(){
-        if(d.is_avanti())return;
-        if(d.is_dx()){
-            gira_sx();
-            d.gira_sx();
-        }else if(d.is_sx()){
-            gira_dx(90,30);
-            d.gira_dx();
-        }else{//è verso indietro
-            gira_dx(180, 40);
-            d.voltati();
-        }
+    public void gira_dx(){
+        ruota_dx(90, 30);
     }
 
-    public void punta_sx(){
-        if(d.is_sx())return;
-        if(d.is_avanti()){
-            gira_sx();
-            d.gira_sx();
-        }else if(d.is_indietro()){
-            gira_dx(90, 30);
-            d.gira_dx();
-        }else{//è verso destra
-            gira_dx(180, 40);
-            d.voltati();
-        }
-    }
-
-    public void punta_dx(){
-        if(d.is_dx())return;
-        if(d.is_indietro()){
-            gira_sx();
-            d.gira_sx();
-        }else if(d.is_avanti()){
-            gira_dx(90, 30);
-            d.gira_dx();
-        }else{//è verso sinistra
-            gira_dx(180, 40);
-            d.voltati();
-        }
-    }
-
-    public void punta_indietro(){
-        if(d.is_indietro())return;
-        if(d.is_sx()){
-            gira_sx();
-            d.gira_sx();
-        }else if(d.is_dx()){
-            gira_dx(90, 30);
-            d.gira_dx();
-        }else{//sta guardando avanti
-            gira_dx(180, 40);
-            d.gira_dx();
-        }
+    public void voltati(){
+        ruota_dx(180, 40);
     }
 }

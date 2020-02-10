@@ -3,15 +3,14 @@ package com.example.buggerduckbot;
 public class Direzione {
     private int d;
 
-    /*
-     * 0 = avanti (aka se avanzi y aumenta)
-     * 1 = destra (aka se avanzi x aumenta)
-     * 2 = indietro (aka se avanzi y diminuisce)
-     * 3 = sinistra (aka se avanzi x diminuisce)
-     */
 
-    public Direzione() {
-        this.d = 0;
+    public final int AVANTI = 0;
+    public final int DESTRA = 1;
+    public final int SINISTRA = 2;
+    public final int INDIETRO = 3;
+
+    public Direzione(int d) {
+        this.d = d;
     }
 
     public boolean is_avanti(){
@@ -35,4 +34,7 @@ public class Direzione {
         d = (d-1)%4;
     }
     public void voltati(){ d = (d+2)%4; }
+
+
+
 }
