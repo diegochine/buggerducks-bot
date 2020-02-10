@@ -31,8 +31,8 @@ public class Map implements Parcelable {
         String pos = data[1];
         numeroRighe = Integer.valueOf(dim.substring(0,dim.indexOf(" ")));
         numeroColonne = Integer.valueOf(dim.substring(dim.indexOf(" ")+1));
-        riga = Integer.valueOf(pos.substring(0,dim.indexOf(" ")));
-        colonna = Integer.valueOf(pos.substring(dim.indexOf(" ")+1));
+        riga = Integer.valueOf(pos.substring(0,pos.indexOf(" ")));
+        colonna = Integer.valueOf(pos.substring(pos.indexOf(" ")+1));
         colonnaIn = colonna;
         rigaIn = riga;
         this.balls = new ArrayList<>();
