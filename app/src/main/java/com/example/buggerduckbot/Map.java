@@ -27,10 +27,12 @@ public class Map implements Parcelable {
         String[] data= new String[2];
 
         in.readStringArray(data);
-        numeroRighe = Integer.valueOf(data[0].substring(0,1));
-        numeroColonne = Integer.valueOf(data[0].substring(2));
-        riga = Integer.valueOf(data[1].substring(0,1));
-        colonna = Integer.valueOf(data[1].substring(2));
+        String dim = data[0];
+        String pos = data[1];
+        numeroRighe = Integer.valueOf(dim.substring(0,dim.indexOf(" ")));
+        numeroColonne = Integer.valueOf(dim.substring(dim.indexOf(" ")+1));
+        riga = Integer.valueOf(pos.substring(0,pos.indexOf(" ")));
+        colonna = Integer.valueOf(pos.substring(pos.indexOf(" ")+1));
         colonnaIn = colonna;
         rigaIn = riga;
         this.balls = new ArrayList<>();
