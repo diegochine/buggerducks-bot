@@ -3,33 +3,19 @@ package com.example.buggerduckbot;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Pair;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import it.unive.dais.legodroid.lib.EV3;
-import it.unive.dais.legodroid.lib.comm.BluetoothConnection;
-import it.unive.dais.legodroid.lib.plugs.TachoMotor;
-import it.unive.dais.legodroid.lib.plugs.UltrasonicSensor;
-import it.unive.dais.legodroid.lib.util.Prelude;
 
 public class MapActivity extends AppCompatActivity {
 
     private TextView output_errori, output_stato;
-    private Direzione d;
+
+    private CellAdapter cellAdapter;
 
     Robot robot;
     @Override
@@ -48,14 +34,13 @@ public class MapActivity extends AppCompatActivity {
         Intent myIntent = getIntent();
         Map map = myIntent.getParcelableExtra("map");
         int task = myIntent.getIntExtra("taskId", 0);
-        Pair<Integer, Integer> dimMap = map.getDimension();
-        Pair<Integer, Integer> posIniziale = map.getInitialPosition();
+        int n_mine = myIntent.getIntExtra("mine", 0);
 
 
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
         mapLayout.setNumColumns(map.getDimension().second);
-        final CellAdapter cellAdapter = new CellAdapter(this, R.drawable.empty_square, map);
+        cellAdapter = new CellAdapter(this, R.drawable.empty_square, map);
         mapLayout.setAdapter(cellAdapter);
 
        //Robot
@@ -83,36 +68,27 @@ public class MapActivity extends AppCompatActivity {
                 //second = y
                 //x = numero colonne
                 //y = numero righe
-                //taskOne();
-                map.addBall(new Pair <> (0,0));
-                cellAdapter.notifyDataSetChanged();
+                //taskOne(map, n_mine);
             }else if(task == 2){
-                map.addBall(new Pair <> (1,1));
-                cellAdapter.notifyDataSetChanged();
-                //taskTwo();
+
             }else if (task == 3){
-                map.addBall(new Pair <> (2,2));
-                cellAdapter.notifyDataSetChanged();
-                //taskThree();
+
             }
         });
     }
+    /*
+    private  void taskOne(Map map, int n_mine){
+        Direzione d = new Direzione(Direzione.AVANTI);
 
-
-    private  ArrayList <Pair<Integer, Integer>> taskOne(int colonna_iniziale, int n_righe, int n_colonne){
-        int n_mine=1;//FIXME va preso da input il numero di mine
-        int riga = 0;
-        int colonna = colonna_iniziale;
-
-        boolean [] colonne = new boolean[n_colonne];
-        for(int i =0; i<n_colonne; ++i) colonne[i]=false;
+        boolean [] file_da_controllare = new boolean[map.getMaxY()];
+        for(int i =0; i<map.getMaxY(); ++i) file_da_controllare[i]=false;
 
         ArrayList <Pair<Integer, Integer>> mine = new ArrayList<>();
 
         while(n_mine > 0){
             //TODO pulisci prima riga
-            colonna = go_to_new_col(riga, colonna, colonne);
-            riga = scan_col(n_righe);
+            go_to_new_col(riga, colonna, colonne);
+            riga = scansione_colonna(n_righe);
             if(riga != 0){//se ha trovato un mina si ferma sopra essa
                 robot.raccogli_mina();
                 --n_mine;
@@ -188,24 +164,26 @@ public class MapActivity extends AppCompatActivity {
         return prima_libera;
     }
 
-    //ritorna true se ha finito la colonna
-    //false se ha trovato una pallina
-    int scan_col(int n_righe){
+   */
+    private boolean scansione_colonna(Map map, Direzione d){
         boolean mina = false;
-        int riga;
-        for(riga=0; riga<n_righe && !mina; ++riga){
+        while(!mina && map.getY() > 0){
             robot.avanza();
+            map.moveUp();
             mina = robot.presenza_mina();
         }
         if( mina ){
-            return riga;
+            map.addBall(map.getPosition());
+            cellAdapter.notifyDataSetChanged();
+            return true;
         }else{
-            robot.punta_indietro();
-            while(n_righe>0){
+            robot.voltati();
+            d.voltati();
+            while(map.getY()<map.getMaxY()){
                 robot.avanza();
-                --n_righe;
+                map.moveDown();
             }
-            return 0;
+            return false;
         }
     }
 

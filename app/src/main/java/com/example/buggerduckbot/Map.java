@@ -36,6 +36,22 @@ public class Map implements Parcelable {
         return dimension;
     }
 
+    public int getMaxX(){
+        return dimension.first;
+    }
+
+    public int getMaxY(){
+        return dimension.second;
+    }
+
+    public int getX(){
+        return position.first;
+    }
+
+    public int getY(){
+        return position.first;
+    }
+
     public Pair<Integer, Integer> getInitialPosition() {
         return initialPosition;
     }

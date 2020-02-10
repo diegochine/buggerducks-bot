@@ -67,11 +67,11 @@ public class TestActivity extends AppCompatActivity {
         avanti.setOnClickListener( e -> rb.avanza() );
 
         dx.setOnClickListener((e)->{
-            rb.punta_dx();
+            rb.gira_dx();
         });
 
         sx.setOnClickListener((e)->{
-            rb.punta_sx();
+            rb.gira_sx();
         });
 
         stop.setOnClickListener((e)->{
@@ -79,9 +79,8 @@ public class TestActivity extends AppCompatActivity {
         });
 
         special.setOnClickListener((e)->{
-           rb.punta_avanti();
            rb.avanza();
-           rb.punta_indietro();
+           rb.voltati();
            rb.avanza();
         });
     }

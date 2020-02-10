@@ -4,10 +4,10 @@ public class Direzione {
     private int d;
 
 
-    public final int AVANTI = 0;
-    public final int DESTRA = 1;
-    public final int SINISTRA = 2;
-    public final int INDIETRO = 3;
+    public static final int AVANTI = 0;
+    public static final int DESTRA = 1;
+    public static final int SINISTRA = 2;
+    public static final int INDIETRO = 3;
 
     public Direzione(int d) {
         this.d = d;
