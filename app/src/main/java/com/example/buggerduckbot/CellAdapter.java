@@ -46,7 +46,7 @@ public class CellAdapter extends BaseAdapter {
             view = layoutInflater.inflate(R.layout.cell_adapter, null);
         }
         final ImageView imageView = view.findViewById(R.id.cell);
-        Pair pair = new Pair<>(i/y, i%y);
+        Pair pair = new Pair<>(i/y, i%y);//TODO
         if(this.map.getPosition().equals(pair)){
             imageView.setImageResource(R.drawable.robot_square);
         }else if (this.map.getBalls().contains(pair)){
