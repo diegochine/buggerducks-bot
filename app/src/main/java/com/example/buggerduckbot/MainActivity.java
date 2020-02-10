@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
         task2Button.setOnClickListener(e -> this.openMap(myIntent, 2, mapX, mapY, posX, posY, mine));
         task3Button.setOnClickListener(e -> this.openMap(myIntent, 3, mapX, mapY, posX, posY, mine));
 
-        Intent testIntent = new Intent (MainActivity.this, TestActivity.class);
-        startActivity(testIntent);
+        //Intent testIntent = new Intent (MainActivity.this, TestActivity.class);
+        //startActivity(testIntent);
     }
 
     /**
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
      * Apre la MapActivity con i paramentri giusti
      */
     private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
-        if(this.validateMapFields(x, y, posx, posy)) {
+        if(!this.validateMapFields(x, y, posx, posy)) {
             Toast.makeText(getApplicationContext(),"I campi della mappa non possono essere vuoti", Toast.LENGTH_SHORT).show();
         }else{
             i.putExtra("taskId", task);

@@ -28,6 +28,8 @@ public class Map implements Parcelable {
         in.readStringArray(data);
         this.dimension = new Pair<>(Integer.valueOf(data[0].substring(0,1)), Integer.valueOf(data[0].substring(2)));
         this.initialPosition = new Pair<>(Integer.valueOf(data[1].substring(0,1)), Integer.valueOf(data[1].substring(2)));
+        this.position = this.initialPosition;
+        this.balls = new ArrayList<>();
     }
 
     public Pair<Integer, Integer> getDimension() {
