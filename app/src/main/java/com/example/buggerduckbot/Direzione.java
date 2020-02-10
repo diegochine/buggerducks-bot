@@ -6,24 +6,24 @@ public class Direzione {
 
     public static final int AVANTI = 0;
     public static final int DESTRA = 1;
-    public static final int SINISTRA = 2;
-    public static final int INDIETRO = 3;
+    public static final int SINISTRA = 3;
+    public static final int INDIETRO = 2;
 
     public Direzione(int d) {
         this.d = d;
     }
 
     public boolean is_avanti(){
-        return d == 0;
+        return d == AVANTI;
     }
     public boolean is_dx(){
-        return d == 1;
+        return d == DESTRA;
     }
     public boolean is_indietro(){
-        return d == 2;
+        return d == INDIETRO;
     }
     public boolean is_sx(){
-        return d == 3;
+        return d == SINISTRA;
     }
 
 
@@ -31,7 +31,7 @@ public class Direzione {
         d = (d+1)%4;
     }
     public void gira_sx(){
-        d = (d-1)%4;
+        d = (d+3)%4;
     }
     public void voltati(){ d = (d+2)%4; }
 

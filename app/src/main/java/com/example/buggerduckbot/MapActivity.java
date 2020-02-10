@@ -15,27 +15,62 @@ public class MapActivity extends AppCompatActivity {
     private CellAdapter cellAdapter;
 
     private void punta_indietro(Direzione d){
-        if(d.is_avanti())robot.voltati();
-        else if(d.is_sx())robot.gira_sx();
-        else if(d.is_dx())robot.gira_dx();
+        if(d.is_avanti()){
+            robot.voltati();
+            d.voltati();
+        }
+        else if(d.is_sx()){
+            robot.gira_sx();
+            d.gira_sx();
+        }
+        else if(d.is_dx()){
+            robot.gira_dx();
+            d.gira_dx();
+        }
     }
 
     private void punta_avanti(Direzione d){
-        if(d.is_indietro())robot.voltati();
-        else if(d.is_sx())robot.gira_dx();
-        else if(d.is_dx())robot.gira_sx();
+        if(d.is_indietro()){
+            robot.voltati();
+            d.voltati();
+        }
+        else if(d.is_sx()){
+            robot.gira_dx();
+            d.gira_dx();
+        }
+        else if(d.is_dx()){
+            robot.gira_sx();
+            d.gira_sx();
+        }
     }
 
     private void punta_dx(Direzione d){
-        if(d.is_sx())robot.voltati();
-        else if(d.is_avanti())robot.gira_dx();
-        else if(d.is_indietro())robot.gira_sx();
+        if(d.is_sx()){
+            robot.voltati();
+            d.voltati();
+        }
+        else if(d.is_avanti()){
+            robot.gira_dx();
+            d.gira_dx();
+        }
+        else if(d.is_indietro()){
+            robot.gira_sx();
+            d.gira_sx();
+        }
     }
 
     private void punta_sx(Direzione d){
-        if(d.is_dx())robot.voltati();
-        else if(d.is_avanti())robot.gira_sx();
-        else if(d.is_indietro())robot.gira_dx();
+        if(d.is_dx()){
+            robot.voltati();
+            d.voltati();
+        }
+        else if(d.is_avanti()) {
+            robot.gira_sx();
+            d.gira_sx();
+        }else if(d.is_indietro()){
+            robot.gira_dx();
+            d.gira_dx();
+        }
     }
 
     Robot robot;
