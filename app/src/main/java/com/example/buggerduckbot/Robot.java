@@ -158,6 +158,9 @@ public class Robot {
 
     public void avanza() { //di una casella
         if(!connesso)return;
+        try {
+            Thread.sleep(2500);
+        }catch (InterruptedException ex){}
         try{
             motore_dx.setTimePower(70, 780, 1300, 1000, true);
             motore_sx.setTimePower(70, 780, 1300, 1000, true);
@@ -199,7 +202,7 @@ public class Robot {
     private void ruota_dx(float gradi, int power) {
         if(!connesso)return;
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }catch (InterruptedException ex){}
 
         while(giroscopio.getOrientation()==null){
@@ -243,7 +246,7 @@ public class Robot {
     public void gira_sx() {
         if(!connesso)return;
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }catch (InterruptedException ex){}
 
         while(giroscopio.getOrientation()==null){

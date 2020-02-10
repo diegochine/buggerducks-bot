@@ -10,8 +10,7 @@ import java.util.ArrayList;
 public class Map implements Parcelable {
 
     private int numeroRighe, numeroColonne, riga, colonna, rigaIn, colonnaIn;
-    private ArrayList<Pair<Integer, Integer>> balls;
-
+    private ArrayList<Pair<Integer, Integer>> mine;
 
     public Map(int n_r, int n_c, int r, int c) {
         numeroRighe = n_r;
@@ -20,7 +19,7 @@ public class Map implements Parcelable {
         colonna = c;
         rigaIn = riga;
         colonnaIn = colonna;
-        this.balls = new ArrayList<>();
+        this.mine = new ArrayList<>();
     }
 
     public Map(Parcel in){
@@ -35,7 +34,7 @@ public class Map implements Parcelable {
         colonna = Integer.valueOf(pos.substring(pos.indexOf(" ")+1));
         colonnaIn = colonna;
         rigaIn = riga;
-        this.balls = new ArrayList<>();
+        this.mine = new ArrayList<>();
     }
 
     public int getNumeroRighe(){
@@ -70,16 +69,16 @@ public class Map implements Parcelable {
         return numeroRighe * numeroColonne;
     }
 
-    public ArrayList<Pair<Integer, Integer>> getBalls() {
-        return balls;
+    public boolean hasFound(int a, int b){
+        for(Pair <Integer, Integer> x : mine){
+            int a1 = x.first, b1=x.second;
+            if(a == a1 && b == b1)return true;
+        }
+        return false;
     }
 
     public void addMina(){
-        balls.add(new Pair<>(riga, colonna));
-    }
-
-    public void addBall(Pair<Integer, Integer> position){
-        this.balls.add(position);
+        mine.add(new Pair<>(riga, colonna));
     }
 
     public void moveUp(){

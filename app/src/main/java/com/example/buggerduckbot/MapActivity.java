@@ -73,7 +73,8 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    Robot robot;
+    private Robot robot;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //inizializzazione activity
@@ -105,7 +106,9 @@ public class MapActivity extends AppCompatActivity {
         //iniziallizazione elementi grafici
         output_stato.setText(R.string.notConnectionString);
         output_errori.setText(R.string.noErrorString);
+
         connectButton.setOnClickListener((e) -> {
+
             //Grafica della Mappa
             cellAdapter.setHeight(mapLayout.getColumnWidth());
             // dice alla grafica che qualcosa è cambiato e si ridisegna
@@ -135,8 +138,8 @@ public class MapActivity extends AppCompatActivity {
         boolean [] colonne = new boolean[map.getNumeroColonne()];
         for(int i = 0; i<map.getNumeroColonne(); ++i) colonne[i]=false;
 
+        svuota_prima_riga(map, d);
         while(n_mine > 0){
-            //TODO pulisci prima riga
             go_to_new_col(map, colonne, d);
             boolean mina = scansione_colonna(map, d);
             if(mina){//se ha trovato un mina si ferma sopra essa
@@ -147,6 +150,50 @@ public class MapActivity extends AppCompatActivity {
             }else{// se non ha trovato una mina torna nella righa 0
                 colonne[map.getColonna()]=true;
             }
+        }
+    }
+
+    private boolean controlla_dx(Map map, Direzione d){
+        //se non sono alla fine mi giro
+        if(map.getColonna()!= map.getNumeroColonne()-1)punta_dx(d);
+        //cerco l' eventuale mina
+        while(map.getColonna()< map.getNumeroColonne()-1){
+            robot.avanza();
+            map.moveRight();
+            if(robot.presenza_mina()){
+                robot.raccogli_mina();
+                map.addMina();
+                cellAdapter.notifyDataSetChanged();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean controlla_sx(Map map, Direzione d){
+        //se non sono all' inizio
+        if(map.getColonna() != 0) punta_sx(d);
+        //cerco eventuale mina
+        while(map.getColonna()>0){
+            robot.avanza();
+            map.moveLeft();
+            if(robot.presenza_mina()){
+                robot.raccogli_mina();
+                map.addMina();
+                cellAdapter.notifyDataSetChanged();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //chiamata dalla posizione inizale
+    private void svuota_prima_riga(Map map, Direzione d){
+        while(controlla_dx(map, d)){
+            dep_mina(map, d);
+        }
+        while(controlla_sx(map, d)){
+            dep_mina(map, d);
         }
     }
 
@@ -179,7 +226,7 @@ public class MapActivity extends AppCompatActivity {
         robot.avanza();
         robot.posa_mina();
         try {
-            Thread.sleep(1500);
+            Thread.sleep(5000);
         }catch (InterruptedException e){
                 output_errori.setText(R.string.sleepError);
         }
@@ -221,7 +268,7 @@ public class MapActivity extends AppCompatActivity {
             mina = robot.presenza_mina();
         }
         if( mina ){
-            map.addBall(map.getPosition());
+            map.addMina();
             cellAdapter.notifyDataSetChanged();
             return true;
         }else{
@@ -237,7 +284,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    private void taskTwo(){
+    private void  taskTwo(){
 
     }
 
