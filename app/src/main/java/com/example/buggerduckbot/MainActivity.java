@@ -54,15 +54,15 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Ritorna true solo se tutti i campi della mappa sono non vuoti
      */
-    private boolean validateMapFields(EditText x, EditText y, EditText posx, EditText posy){
-        return !(TextUtils.isEmpty(x.getText()) || TextUtils.isEmpty(y.getText()) || TextUtils.isEmpty(posx.getText()) || TextUtils.isEmpty(posy.getText()));
+    private boolean validateMapFields(EditText x, EditText y, EditText posx, EditText posy, EditText mine){
+        return !(TextUtils.isEmpty(x.getText()) || TextUtils.isEmpty(y.getText()) || TextUtils.isEmpty(posx.getText()) || TextUtils.isEmpty(posy.getText()) || TextUtils.isEmpty(mine.getText()));
     }
 
     /**
      * Apre la MapActivity con i paramentri giusti
      */
     private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
-        if(!this.validateMapFields(x, y, posx, posy)) {
+        if(!this.validateMapFields(x, y, posx, posy, mine)) {
             Toast.makeText(getApplicationContext(),"I campi della mappa non possono essere vuoti", Toast.LENGTH_SHORT).show();
         }else{
             i.putExtra("taskId", task);
