@@ -1,0 +1,150 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true">
+
+
+
+
+    <TextView
+        android:id="@+id/previous_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:padding="10dp"
+        android:textColor="@color/textColor" />
+
+    <TextView
+        android:text="@string/status_unknown"
+        android:id="@+id/current_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:padding="10dp"
+        android:textColor="@color/textColor"
+        android:background="@color/state_unknown"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top|end"
+        android:textSize="24sp"
+        android:padding="10dp"
+        android:textColor="@color/textColor" />
+
+    <TextView
+        android:id="@+id/debug_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:maxLines="10"
+        android:scrollbars="vertical"
+        android:textSize="20sp"
+        android:textColor="@color/textColor" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="20mm"
+        android:gravity="top">
+
+        <Button
+            android:id="@+id/button_advertise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="start_advertise"
+            android:text="Advertise"
+            android:layout_gravity="bottom|left"
+            />
+
+        <Button
+            android:id="@+id/button_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test All Msg"
+            android:onClick="send_Byte"
+            android:layout_gravity="center|left"/>
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Coordinate"
+            android:onClick="send_coordinate"
+            android:layout_gravity="center|left"/>
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="20mm"
+        android:orientation="vertical"
+        android:gravity="top">
+
+        <Button
+            android:id="@+id/button_Start0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="stop_stop_click"
+            android:text="Start/Stop All"
+            android:tag="0"
+            android:layout_gravity="top|right"
+            />
+
+        <Button
+            android:id="@+id/button_Start1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="stop_stop_click"
+            android:text="Start/Stop 1"
+            android:tag="1"
+            android:layout_gravity="top|right"
+            />
+
+        <Button
+            android:id="@+id/button_Start2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="stop_stop_click"
+            android:text="Start/Stop 2"
+            android:tag="2"
+            android:layout_gravity="top|right"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="10mm">
+        <TextView
+            android:id="@+id/label_key"
+            android:layout_height="wrap_content"
+            android:text="   Secret Key value: "
+            android:layout_weight="1"
+            android:layout_width="wrap_content">
+        </TextView>
+        <TextView
+            android:id="@+id/edit_key"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="wrap_content">
+        </TextView>
+
+        <Button
+            android:id="@+id/Button01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="edit_secret_key"
+            android:text="Edit"></Button>
+
+    </LinearLayout>
+
+</FrameLayout>

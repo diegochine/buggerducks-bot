@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         task2Button = findViewById(R.id.task2Btn);
         task3Button = findViewById(R.id.task3Btn);
 
-        startActivity(new Intent(MainActivity.this, TestActivity.class));
+        //startActivity(new Intent(MainActivity.this, TestActivity.class));
 
         Intent myIntent = new Intent(MainActivity.this, MapActivity.class);
 

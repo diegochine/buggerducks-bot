@@ -16,4 +16,19 @@
     <string name="needConnection">Devi prima connetterti al robot</string>
     <string name="sleepError">Il Thread ha avuto problemi con la sleep</string>
     <string name="mineNumber">Numero di mine</string>
+
+
+    <string name="error_missing_permissions">Cannot start without required permissions</string>
+
+    <string name="toast_connected">Connected to %s</string>
+    <string name="toast_disconnected">Disconnected from %s</string>
+
+    <string name="status_unknown">Please wait</string>
+    <string name="status_connected">Connected</string>
+
+    <string name="status_advertising">Advertising</string>
+    <string name="status_discovering">Press the button to start Advertisement.</string>
+
+
+    <string name="secret_key">Encrypt Key</string>
 </resources>
