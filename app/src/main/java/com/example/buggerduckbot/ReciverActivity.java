@@ -163,7 +163,7 @@ public class ReciverActivity extends ConnectionsActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_reciver);
         getSupportActionBar()
                 .setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.actionBar));
 
@@ -176,7 +176,7 @@ public class ReciverActivity extends ConnectionsActivity {
 
         /* Comment here to generate a random name for the GroundStation */
         //mName = generateRandomName();
-        mName = "GroundStation";
+        mName = "BuggerDucks";
 
         ((TextView) findViewById(R.id.name)).setText(mName);
         ((TextView) findViewById(R.id.edit_key)).setText(KEY);
@@ -200,8 +200,8 @@ public class ReciverActivity extends ConnectionsActivity {
     protected void onStart() {
         super.onStart();
         // Swap the two functions below if you want to start on Discovering rather than Advertising.
-        //setState(State.DISCOVERING);
-        setState(State.ADVERTISING);
+        setState(State.DISCOVERING);
+        //setState(State.ADVERTISING);
     }
 
     @Override
@@ -781,11 +781,11 @@ public class ReciverActivity extends ConnectionsActivity {
         if (payload.getType() == Payload.Type.BYTES) {
             byte[] bytes = payload.asBytes();
             // comment this send if we are not the Groundstation anymore
-            send(payload);
+            //send(payload);
             String str_bytes = new String(bytes);
 
             // those are needed if you are a robot!
-            /*
+
             Integer aux = Character.getNumericValue(str_bytes.charAt(0));
             if((aux >= 0 && aux <=6) && ((str_bytes.charAt(1)=='S'))){
                 if(aux == 0 || aux == 1) {
@@ -815,7 +815,7 @@ public class ReciverActivity extends ConnectionsActivity {
                     // messaggio del protocollo passivo
                     return;
                 }
-              */
+
 
             if (str_bytes.toLowerCase().contains("recupero")) {
                 logD(

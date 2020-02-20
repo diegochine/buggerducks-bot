@@ -64,9 +64,17 @@ public class MainActivity extends AppCompatActivity {
      * Apre la MapActivity con i paramentri giusti
      */
     private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
+        if(task == 2){
+            startActivity(new Intent(MainActivity.this, ReciverActivity.class));
+        }
+
+        /*
         if(!this.validateMapFields(x, y, posx, posy, mine)) {
             Toast.makeText(getApplicationContext(),"I campi della mappa non possono essere vuoti", Toast.LENGTH_SHORT).show();
         }else{
+
+
+
             i.putExtra("taskId", task);
             i.putExtra("mine", Integer.valueOf(mine.getText().toString()));
             int n_righe = Integer.valueOf(x.getText().toString());
@@ -75,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             int colonna = Integer.valueOf(posy.getText().toString());
             i.putExtra("map", new Map(n_righe, n_colonne, riga, colonna));
             startActivity(i);
-        }
+        }*/
     }
 }
 

@@ -23,7 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ReciverActivity"></activity>
+        <activity android:name=".ReciverActivity" android:screenOrientation="portrait" />
         <activity
             android:name=".MapActivity"
             android:screenOrientation="portrait" />
