@@ -69,7 +69,7 @@ public class Map implements Parcelable {
         return numeroRighe * numeroColonne;
     }
 
-    public boolean hasFound(int a, int b){
+    public boolean haTrovato(int a, int b){
         for(Pair <Integer, Integer> x : mine){
             int a1 = x.first, b1=x.second;
             if(a == a1 && b == b1)return true;

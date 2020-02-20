@@ -1,7 +1,6 @@
 package com.example.buggerduckbot;
 
 import android.content.Context;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +45,10 @@ public class CellAdapter extends BaseAdapter {
             view = layoutInflater.inflate(R.layout.cell_adapter, null);
         }
         final ImageView imageView = view.findViewById(R.id.cell);
-        if (map.hasFound(i/y, i%y)){
+        if (map.haTrovato(i/y, i%y)){
             imageView.setImageResource(R.drawable.square_ball);
+        }else if(map.getInitialRiga()== i/y && map.getInitialColonna()==i%y){
+            //todo
         }else {
             imageView.setImageResource(this.resourceId);
         }

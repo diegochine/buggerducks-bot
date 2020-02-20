@@ -214,7 +214,7 @@ public class Robot {
         }
         float angolo_inizale = giroscopio.getOrientation();
         float angolo = 0;
-        float limite = gradi*0.8f;
+        float limite = gradi*0.6f;
 
         try {
             motore_dx.setPower(-power);
@@ -259,7 +259,7 @@ public class Robot {
 
         float angolo_inizale = giroscopio.getOrientation();
         float angolo = 0;
-        float limite = 90*0.8f;
+        float limite = 90*0.6f;
 
         try {
             motore_dx.setPower(30);
