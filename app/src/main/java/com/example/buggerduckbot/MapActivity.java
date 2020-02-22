@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -93,7 +96,6 @@ public class MapActivity extends AppCompatActivity {
         int task = myIntent.getIntExtra("taskId", 0);
         int n_mine = myIntent.getIntExtra("mine", 0);
 
-
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
         mapLayout.setNumColumns(map.getNumeroColonne());
@@ -125,7 +127,9 @@ public class MapActivity extends AppCompatActivity {
             if(task == 1){
                 taskOne(map, n_mine);
             }else if(task == 2){
-
+                ArrayList<Pair<Integer,Integer>> coordinate =  myIntent.getParcelableExtra("coordinate");
+                map.addMine(coordinate);
+                taskTwo(coordinate);
             }else if (task == 3){
 
             }
@@ -284,7 +288,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    private void  taskTwo(){
+    private void  taskTwo(ArrayList<Pair<Integer,Integer>> coordinate){
 
     }
 

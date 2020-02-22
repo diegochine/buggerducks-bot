@@ -11,6 +11,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -24,6 +25,7 @@ import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -44,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -73,6 +76,18 @@ import javax.crypto.spec.SecretKeySpec;
  */
 
 public class ReciverActivity extends ConnectionsActivity {
+    /*
+    parte fatta da noi
+     */
+    private Intent new_intent;
+    private ArrayList <Pair<Integer, Integer>> coordinate;
+
+
+
+
+
+
+
     /**
      * If true, debug logs are shown on the device.
      */
@@ -185,6 +200,28 @@ public class ReciverActivity extends ConnectionsActivity {
         mStop = new boolean[6];
         // all the robot are assumed to be in move
         Arrays.fill(mStop, true);
+
+
+        //intent
+        Intent myIntent = getIntent();
+        Map map = myIntent.getParcelableExtra("map");
+        int task = myIntent.getIntExtra("taskId", 0);
+        int n_mine = myIntent.getIntExtra("mine", 0);
+
+
+        /*
+            parte fatta da noi
+         */
+        new_intent = new Intent(ReciverActivity.this, MapActivity.class);
+        new_intent.putExtra("taskId", task);
+        new_intent.putExtra("mine", n_mine);
+        new_intent.putExtra("map", map);
+
+        Button fine = findViewById(R.id.fine);
+        fine.setOnClickListener(e->{
+            new_intent.putExtra("coordinate", coordinate);
+            startActivity(new_intent);
+        });
     }
 
     private static String generateRandomName() {
@@ -812,6 +849,12 @@ public class ReciverActivity extends ConnectionsActivity {
                             String.format(
                                     "Recovery message: %s",
                                     str_bytes));
+                    //-----------------------------------------------------------------------------------------------------------------------------------------------
+                    String [] split1 = str_bytes.split(";");
+                    int r = Integer.parseInt(split1[1]);
+                    String[] split2 = split1[0].split(":");
+                    int c = Integer.parseInt(split2[1]);
+                    coordinate.add(new Pair<>(r,c));
                     // messaggio del protocollo passivo
                     return;
                 }

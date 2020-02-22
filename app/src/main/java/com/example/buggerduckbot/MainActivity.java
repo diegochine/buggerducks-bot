@@ -46,11 +46,9 @@ public class MainActivity extends AppCompatActivity {
 
         //startActivity(new Intent(MainActivity.this, TestActivity.class));
 
-        Intent myIntent = new Intent(MainActivity.this, MapActivity.class);
-
-        task1Button.setOnClickListener(e -> this.openMap(myIntent, 1, mapX, mapY, posX, posY, mine));
-        task2Button.setOnClickListener(e -> this.openMap(myIntent, 2, mapX, mapY, posX, posY, mine));
-        task3Button.setOnClickListener(e -> this.openMap(myIntent, 3, mapX, mapY, posX, posY, mine));
+        task1Button.setOnClickListener(e -> this.openMap(1, mapX, mapY, posX, posY, mine));
+        task2Button.setOnClickListener(e -> this.openMap(2, mapX, mapY, posX, posY, mine));
+        task3Button.setOnClickListener(e -> this.openMap(3, mapX, mapY, posX, posY, mine));
     }
 
     /**
@@ -63,17 +61,16 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Apre la MapActivity con i paramentri giusti
      */
-    private void openMap(Intent i, int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
-        if(task == 2){
-            startActivity(new Intent(MainActivity.this, ReciverActivity.class));
-        }
-
-        /*
+    private void openMap( int task, EditText x, EditText y, EditText posx, EditText posy, EditText mine){
         if(!this.validateMapFields(x, y, posx, posy, mine)) {
             Toast.makeText(getApplicationContext(),"I campi della mappa non possono essere vuoti", Toast.LENGTH_SHORT).show();
         }else{
-
-
+            Intent i;
+            if(task == 2){
+                i = new Intent(MainActivity.this, ReciverActivity.class);
+            }else{
+                i = new Intent(MainActivity.this, MapActivity.class);
+            }
 
             i.putExtra("taskId", task);
             i.putExtra("mine", Integer.valueOf(mine.getText().toString()));
@@ -83,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             int colonna = Integer.valueOf(posy.getText().toString());
             i.putExtra("map", new Map(n_righe, n_colonne, riga, colonna));
             startActivity(i);
-        }*/
+        }
     }
 }
 

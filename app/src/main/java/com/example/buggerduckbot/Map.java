@@ -81,6 +81,10 @@ public class Map implements Parcelable {
         mine.add(new Pair<>(riga, colonna));
     }
 
+    public void addMine(ArrayList<Pair<Integer, Integer>> m){
+        mine.addAll(m);
+    }
+
     public void moveUp(){
         riga--;
     }

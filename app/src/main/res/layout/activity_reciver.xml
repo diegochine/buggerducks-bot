@@ -81,7 +81,7 @@
 
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="20mm"
@@ -117,6 +117,12 @@
             android:tag="2"
             android:layout_gravity="top|right"
             />
+
+        <Button
+            android:id="@+id/fine"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:text="fine" />
     </LinearLayout>
 
 
