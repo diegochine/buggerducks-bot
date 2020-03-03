@@ -81,6 +81,7 @@ public class ReciverActivity extends ConnectionsActivity {
      */
     private Intent new_intent;
     private ArrayList <Pair<Integer, Integer>> coordinate;
+    //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -202,26 +203,36 @@ public class ReciverActivity extends ConnectionsActivity {
         Arrays.fill(mStop, true);
 
 
+        //-----------------------------------------------------------------------------------------------------------------------------------------------
+        /*
+            parte fatta da noi
+         */
         //intent
         Intent myIntent = getIntent();
         Map map = myIntent.getParcelableExtra("map");
         int task = myIntent.getIntExtra("taskId", 0);
         int n_mine = myIntent.getIntExtra("mine", 0);
 
-
-        /*
-            parte fatta da noi
-         */
-        new_intent = new Intent(ReciverActivity.this, MapActivity.class);
+        new_intent = new Intent(this, MapActivity.class);
         new_intent.putExtra("taskId", task);
-        new_intent.putExtra("mine", n_mine);
         new_intent.putExtra("map", map);
 
+        //array
+        coordinate = new ArrayList<>();
+
+        //bottone
         Button fine = findViewById(R.id.fine);
         fine.setOnClickListener(e->{
-            new_intent.putExtra("coordinate", coordinate);
+            new_intent.putExtra("mine", coordinate.size());
+            for(int i=0; i<coordinate.size(); ++i){
+                String r = String.format("r%d", i);
+                String c = String.format("c%d", i);
+                new_intent.putExtra(r, coordinate.get(i).first);
+                new_intent.putExtra(c, coordinate.get(i).second);
+            }
             startActivity(new_intent);
         });
+        //-----------------------------------------------------------------------------------------------------------------------------------------------
     }
 
     private static String generateRandomName() {
@@ -855,6 +866,7 @@ public class ReciverActivity extends ConnectionsActivity {
                     String[] split2 = split1[0].split(":");
                     int c = Integer.parseInt(split2[1]);
                     coordinate.add(new Pair<>(r,c));
+                    //-----------------------------------------------------------------------------------------------------------------------------------------------
                     // messaggio del protocollo passivo
                     return;
                 }

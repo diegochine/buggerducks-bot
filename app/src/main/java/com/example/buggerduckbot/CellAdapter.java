@@ -48,7 +48,7 @@ public class CellAdapter extends BaseAdapter {
         if (map.haTrovato(i/y, i%y)){
             imageView.setImageResource(R.drawable.square_ball);
         }else if(map.getInitialRiga()== i/y && map.getInitialColonna()==i%y){
-            //todo
+            imageView.setImageResource(R.drawable.robot_img);
         }else {
             imageView.setImageResource(this.resourceId);
         }

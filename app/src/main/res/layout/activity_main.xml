@@ -30,7 +30,7 @@
                 android:layout_weight="1"
                 android:autofillHints="X"
                 android:ems="10"
-                android:hint="X"
+                android:hint="Righe"
                 android:inputType="numberSigned" />
 
             <EditText
@@ -40,7 +40,7 @@
                 android:layout_weight="1"
                 android:autofillHints="Y"
                 android:ems="10"
-                android:hint="Y"
+                android:hint="Colonne"
                 android:inputType="numberSigned" />
 
         </LinearLayout>
@@ -70,7 +70,7 @@
                 android:layout_weight="1"
                 android:autofillHints="X"
                 android:ems="10"
-                android:hint="X"
+                android:hint="Riga"
                 android:inputType="numberSigned" />
 
             <EditText
@@ -80,7 +80,7 @@
                 android:layout_weight="1"
                 android:autofillHints="Y"
                 android:ems="10"
-                android:hint="Y"
+                android:hint="Colonna"
                 android:inputType="numberSigned" />
 
         </LinearLayout>

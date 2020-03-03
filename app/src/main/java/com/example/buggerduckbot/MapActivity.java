@@ -96,6 +96,27 @@ public class MapActivity extends AppCompatActivity {
         int task = myIntent.getIntExtra("taskId", 0);
         int n_mine = myIntent.getIntExtra("mine", 0);
 
+        ArrayList<Pair<Integer,Integer>> coordinate =  new ArrayList<>();
+
+        if(task == 2) {
+            for (int i = 0; i < n_mine; ++i) {
+                String s_r = String.format("r%d", i);
+                String s_c = String.format("c%d", i);
+                int r = myIntent.getIntExtra(s_r, 0);
+                int c = myIntent.getIntExtra(s_c, 0);
+                output_errori.setText("r=" + r + " c=" + c);
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+
+                coordinate.add(new Pair<>(r, c));
+            }
+            map.addMine(coordinate);
+        }
+
         //mappa
         final GridView mapLayout =  findViewById(R.id.map);
         mapLayout.setNumColumns(map.getNumeroColonne());
@@ -127,8 +148,6 @@ public class MapActivity extends AppCompatActivity {
             if(task == 1){
                 taskOne(map, n_mine);
             }else if(task == 2){
-                ArrayList<Pair<Integer,Integer>> coordinate =  myIntent.getParcelableExtra("coordinate");
-                map.addMine(coordinate);
                 taskTwo(coordinate);
             }else if (task == 3){
 
