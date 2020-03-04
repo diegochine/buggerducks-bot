@@ -104,14 +104,6 @@ public class MapActivity extends AppCompatActivity {
                 String s_c = String.format("c%d", i);
                 int r = myIntent.getIntExtra(s_r, 0);
                 int c = myIntent.getIntExtra(s_c, 0);
-                output_errori.setText("r=" + r + " c=" + c);
-
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-
                 coordinate.add(new Pair<>(r, c));
             }
             map.addMine(coordinate);
@@ -148,7 +140,7 @@ public class MapActivity extends AppCompatActivity {
             if(task == 1){
                 taskOne(map, n_mine);
             }else if(task == 2){
-                taskTwo(coordinate);
+                taskTwo(map, coordinate);
             }else if (task == 3){
 
             }
@@ -306,9 +298,82 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    private void interpreta_comando(int c, Direzione d){
+        if(Comandi.AVANZA(c)){
+            robot.avanza();
+            return;
+        }
+        if(Comandi.RACCOGLI(c)){
+            robot.raccogli_mina();
+            return;
+        }
+        if(Comandi.MOLLA(c)){
+            robot.posa_mina();
+            return;
+        }
+        if(Comandi.SU(c)){
+            punta_avanti(d);
+            return;
+        }
+        if(Comandi.DX(c)){
+            punta_dx(d);
+            return;
+        }
+        if(Comandi.GIU(c)){
+            punta_indietro(d);
+            return;
+        }
+        if(Comandi.SX(c)){
+            punta_sx(d);
+            return;
+        }
+    }
 
-    private void  taskTwo(ArrayList<Pair<Integer,Integer>> coordinate){
+    private void  taskTwo(Map map, ArrayList<Pair<Integer,Integer>> coordinate){
+        //prendo la roba che mi serve
+        Direzione d = new Direzione(Direzione.AVANTI); //il robot va messo sempre verso la riga 0
+        Maze m = new Maze(map);
 
+        //per ogni mina
+        for (Pair<Integer,Integer> x : coordinate){
+            //ottengo il "percorso" sotto forma di comandi
+            ArrayList<Integer> comandi = m.getComandi(x);
+            //segnalo che la prima volta si potrà passare sulla posizione dove ora c'è la mina
+            m.setFree(x);
+
+            //vado fino alla mina, la prendo e torno indietro
+            for(int com : comandi){
+                interpreta_comando(com, d);
+            }
+
+            //capisco dov'è la zona sicura e mollo la mina
+            //do per scontato di trovarmi alla posizione iniziale
+            if(map.getInitialRiga()== 0){//se sono sulla prima riga
+                punta_avanti(d);
+                robot.avanza();
+                robot.posa_mina();
+                punta_indietro(d);
+                robot.avanza();
+            } else if(map.getInitialRiga()== map.getNumeroRighe()-1){//se sono sull ultima riga
+                punta_indietro(d);
+                robot.avanza();
+                robot.posa_mina();
+                punta_avanti(d);
+                robot.avanza();
+            }else if(map.getInitialColonna()== 0){//se sono sulla prima colonna
+                punta_sx(d);
+                robot.avanza();
+                robot.posa_mina();
+                punta_dx(d);
+                robot.avanza();
+            }else if(map.getInitialColonna()== map.getNumeroColonne() -1 ){//se sono sull ultima colonna
+                punta_dx(d);
+                robot.avanza();
+                robot.posa_mina();
+                punta_sx(d);
+                robot.avanza();
+            }
+        }
     }
 
     private void taskThree(){
